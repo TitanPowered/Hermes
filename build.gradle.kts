@@ -48,16 +48,15 @@ tasks {
     build {
         dependsOn(shadowJar)
     }
-    withType<AbstractArchiveTask> {
-        isPreserveFileTimestamps = false
-        isReproducibleFileOrder = true
-    }
     withType<JavaCompile> {
         options.encoding = "UTF-8"
     }
     named<Copy>("processResources") {
         filesMatching("plugin.yml") {
             expand("pluginVersion" to project.version)
+        }
+        from("LICENSE") {
+            rename { "${project.name.toUpperCase()}_${it}"}
         }
     }
 }
