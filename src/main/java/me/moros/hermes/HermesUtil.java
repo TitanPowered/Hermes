@@ -19,12 +19,12 @@
 
 package me.moros.hermes;
 
-import io.papermc.paper.text.PaperComponents;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
+import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.checkerframework.checker.nullness.qual.NonNull;
@@ -57,7 +57,7 @@ public final class HermesUtil {
     Component prefix = config.namePrefix(source);
     Component suffix = config.nameSuffix(source);
     Component name = config.nameFormat(source);
-    String raw = PaperComponents.plainTextSerializer().serialize(message);
+    String raw = PlainTextComponentSerializer.plainText().serialize(message);
     Component formatted = Formatter.createAndFormat(source, SERIALIZER.deserialize(raw));
     return Component.text().color(BASE_COLOR)
       .append(prefix).append(name).append(suffix)

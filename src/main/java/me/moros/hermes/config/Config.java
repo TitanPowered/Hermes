@@ -27,6 +27,7 @@ import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.ArgumentQueue;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -66,7 +67,7 @@ public final class Config {
 
     CommentedConfigurationNode tab = rootNode.node("tab");
     header = tab.node("header").getString(
-      "<color:#dddddd>Online players: <green><papi:server_online></green></color><newline>" +
+      "<color:#dddddd>Online players: <green><online></green></color><newline>" +
         "<color:#666666><b><st>⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯</st></b></color>"
     );
     footer = tab.node("footer").getString(
@@ -138,7 +139,8 @@ public final class Config {
 
   private static Component parsePlaceholder(String text, @Nullable Player player, int space) {
     var builder = TagResolver.builder()
-      .resolver(TagResolver.resolver("papi", (args, ctx) -> papiTag(player, args, ctx, space)));
+      .resolver(TagResolver.resolver("papi", (args, ctx) -> papiTag(player, args, ctx, space)))
+      .resolver(Placeholder.component("online", Component.text(Bukkit.getOnlinePlayers().size())));
     if (player != null) {
       builder.resolver(Placeholder.parsed("name", player.getName()));
     }
