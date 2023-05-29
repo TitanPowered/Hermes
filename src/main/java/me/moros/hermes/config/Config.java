@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 Moros
+ * Copyright 2021-2023 Moros
  *
  * This file is part of Hermes.
  *
@@ -19,21 +19,11 @@
 
 package me.moros.hermes.config;
 
-import me.clip.placeholderapi.PlaceholderAPI;
-import me.moros.hermes.HermesUtil;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.minimessage.Context;
-import net.kyori.adventure.text.minimessage.tag.Tag;
-import net.kyori.adventure.text.minimessage.tag.resolver.ArgumentQueue;
-import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
-import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.checker.nullness.qual.Nullable;
 import org.spongepowered.configurate.CommentedConfigurationNode;
 
-public final class Config {
+public final class Config extends Configurable {
   private final Component separator;
   private final Component joinPrefix;
   private final Component quitPrefix;
@@ -77,88 +67,55 @@ public final class Config {
     playerPrefix = tab.node("player-prefix").getString(" <papi:vault_prefix> ");
   }
 
-  public @NonNull Component separator() {
+  public Component separator() {
     return separator;
   }
 
-  public @NonNull Component joinPrefix() {
+  public Component joinPrefix() {
     return joinPrefix;
   }
 
-  public @NonNull Component quitPrefix() {
+  public Component quitPrefix() {
     return quitPrefix;
   }
 
-  public @NonNull Component nameFormat(@NonNull Player player) {
+  public Component nameFormat(Player player) {
     return parsePlaceholder(nameFormat, player);
   }
 
-  public @NonNull Component namePrefix(@NonNull Player player) {
+  public Component namePrefix(Player player) {
     return parsePlaceholder(namePrefix, player, -1);
   }
 
-  public @NonNull Component nameSuffix(@NonNull Player player) {
+  public Component nameSuffix(Player player) {
     return parsePlaceholder(nameSuffix, player, 1);
   }
 
-  public @NonNull Component msgJoiner() {
+  public Component msgJoiner() {
     return msgJoiner;
   }
 
-  public @NonNull Component msgPrefix() {
+  public Component msgPrefix() {
     return msgPrefix;
   }
 
-  public @NonNull Component spyMsgPrefix() {
+  public Component spyMsgPrefix() {
     return spyMsgPrefix;
   }
 
-  public @NonNull Component selfMsg() {
+  public Component selfMsg() {
     return selfMsg;
   }
 
-  public @NonNull Component header() {
+  public Component header() {
     return parsePlaceholder(header, null);
   }
 
-  public @NonNull Component footer() {
+  public Component footer() {
     return parsePlaceholder(footer, null);
   }
 
-  public @NonNull Component playerPrefix(@NonNull Player player) {
+  public Component playerPrefix(Player player) {
     return parsePlaceholder(playerPrefix, player);
-  }
-
-  private static Component parse(String text) {
-    return HermesUtil.MINI_SERIALIZER.deserialize(text);
-  }
-
-  private static Component parsePlaceholder(String text, @Nullable Player player) {
-    return parsePlaceholder(text, player, 0);
-  }
-
-  private static Component parsePlaceholder(String text, @Nullable Player player, int space) {
-    var builder = TagResolver.builder()
-      .resolver(TagResolver.resolver("papi", (args, ctx) -> papiTag(player, args, ctx, space)))
-      .resolver(Placeholder.component("online", Component.text(Bukkit.getOnlinePlayers().size())));
-    if (player != null) {
-      builder.resolver(Placeholder.parsed("name", player.getName()));
-    }
-    return HermesUtil.MINI_SERIALIZER.deserialize(text, builder.build());
-  }
-
-  private static Tag papiTag(Player player, ArgumentQueue args, Context ctx, int space) {
-    String placeholder = args.popOr("Missing placeholder id argument!").value();
-    String s = PlaceholderAPI.setPlaceholders(player, '%' + placeholder + '%');
-    if (s.isBlank()) {
-      return Tag.selfClosingInserting(Component.empty());
-    }
-    Component result = HermesUtil.SERIALIZER.deserialize(s);
-    if (space < 0) {
-      result = result.append(Component.space());
-    } else if (space > 0) {
-      result = Component.space().append(result);
-    }
-    return Tag.selfClosingInserting(result);
   }
 }

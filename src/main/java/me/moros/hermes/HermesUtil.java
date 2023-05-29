@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 Moros
+ * Copyright 2021-2023 Moros
  *
  * This file is part of Hermes.
  *
@@ -19,41 +19,38 @@
 
 package me.moros.hermes;
 
+import me.moros.hermes.config.ConfigManager;
 import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.format.Style;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.jetbrains.annotations.NotNull;
 
 import static net.kyori.adventure.text.Component.text;
 
 public final class HermesUtil {
   public static final TextColor BASE_COLOR = TextColor.fromHexString("#EEEEEE");
-  private static final TextColor URL_COLOR = TextColor.fromHexString("#F5DEB3");
 
   public static final LegacyComponentSerializer SERIALIZER = LegacyComponentSerializer
-    .legacyAmpersand().toBuilder().hexColors().extractUrls(Style.style(URL_COLOR)).build();
+    .legacyAmpersand().toBuilder().hexColors().build();
 
   public static final MiniMessage MINI_SERIALIZER = MiniMessage.miniMessage();
 
   private HermesUtil() {
   }
 
-  public static @NonNull Component join(@NonNull Player player) {
-    return Hermes.configManager().config().joinPrefix().append(text(player.getName(), BASE_COLOR));
+  public static Component join(Player player) {
+    return ConfigManager.config().joinPrefix().append(text(player.getName(), BASE_COLOR));
   }
 
-  public static @NonNull Component quit(@NonNull Player player) {
-    return Hermes.configManager().config().quitPrefix().append(text(player.getName(), BASE_COLOR));
+  public static Component quit(Player player) {
+    return ConfigManager.config().quitPrefix().append(text(player.getName(), BASE_COLOR));
   }
 
-  public static @NotNull Component renderChat(@NotNull Player source, @NotNull Component sourceDisplayName, @NotNull Component message) {
-    var config = Hermes.configManager().config();
+  public static Component renderChat(Player source, Component sourceDisplayName, Component message) {
+    var config = ConfigManager.config();
     Component prefix = config.namePrefix(source);
     Component suffix = config.nameSuffix(source);
     Component name = config.nameFormat(source);
@@ -66,12 +63,12 @@ public final class HermesUtil {
   }
 
   public static void refreshHeaderFooter() {
-    Component header = Hermes.configManager().config().header();
-    Component footer = Hermes.configManager().config().footer();
+    Component header = ConfigManager.config().header();
+    Component footer = ConfigManager.config().footer();
     Bukkit.getOnlinePlayers().forEach(p -> p.sendPlayerListHeaderAndFooter(header, footer));
   }
 
-  public static void refreshListName(@NonNull Player player) {
-    player.playerListName(Hermes.configManager().config().playerPrefix(player).append(player.name()));
+  public static void refreshListName(Player player) {
+    player.playerListName(ConfigManager.config().playerPrefix(player).append(player.name()));
   }
 }

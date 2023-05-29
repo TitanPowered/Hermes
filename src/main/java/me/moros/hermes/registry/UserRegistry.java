@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 Moros
+ * Copyright 2021-2023 Moros
  *
  * This file is part of Hermes.
  *
@@ -29,7 +29,6 @@ import java.util.stream.Stream;
 
 import me.moros.hermes.User;
 import org.bukkit.entity.Player;
-import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 /**
@@ -42,32 +41,32 @@ public final class UserRegistry implements Registry<User> {
     users = new ConcurrentHashMap<>();
   }
 
-  public boolean contains(@NonNull UUID uuid) {
+  public boolean contains(UUID uuid) {
     return users.containsKey(uuid);
   }
 
-  public @NonNull User user(@NonNull Player player) {
+  public User user(Player player) {
     return Objects.requireNonNull(users.get(player.getUniqueId()));
   }
 
-  public @Nullable User user(@NonNull UUID uuid) {
+  public @Nullable User user(UUID uuid) {
     return users.get(uuid);
   }
 
-  public void invalidate(@NonNull UUID uuid) {
+  public void invalidate(UUID uuid) {
     users.remove(uuid);
   }
 
-  public void register(@NonNull User user) {
+  public void register(User user) {
     users.putIfAbsent(user.uuid(), user);
   }
 
-  public @NonNull Stream<User> stream() {
+  public Stream<User> stream() {
     return users.values().stream();
   }
 
   @Override
-  public @NonNull Iterator<User> iterator() {
+  public Iterator<User> iterator() {
     return Collections.unmodifiableCollection(users.values()).iterator();
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 Moros
+ * Copyright 2021-2023 Moros
  *
  * This file is part of Hermes.
  *
@@ -35,22 +35,23 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import me.moros.hermes.Hermes;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.translation.GlobalTranslator;
 import net.kyori.adventure.translation.TranslationRegistry;
 import net.kyori.adventure.translation.Translator;
 import net.kyori.adventure.util.UTF8ResourceBundleControl;
-import org.checkerframework.checker.nullness.qual.NonNull;
+import org.slf4j.Logger;
 
 public final class TranslationManager {
   public static final Locale DEFAULT_LOCALE = Locale.ENGLISH;
 
+  private final Logger logger;
   private final Set<Locale> installed = ConcurrentHashMap.newKeySet();
   private final Path translationsDirectory;
   private TranslationRegistry registry;
 
-  public TranslationManager(@NonNull String directory) {
+  public TranslationManager(Logger logger, String directory) {
+    this.logger = logger;
     translationsDirectory = Paths.get(directory, "translations");
     reload();
   }
@@ -81,7 +82,7 @@ public final class TranslationManager {
     int amount = installed.size();
     if (amount > 0) {
       String translations = installed.stream().map(Locale::getLanguage).collect(Collectors.joining(", ", "[", "]"));
-      Hermes.logger().info("Loaded " + amount + " translations: " + translations);
+      logger.info("Loaded " + amount + " translations: " + translations);
     }
   }
 
@@ -89,14 +90,14 @@ public final class TranslationManager {
     String localeString = removeFileExtension(path);
     Locale locale = Translator.parseLocale(localeString);
     if (locale == null) {
-      Hermes.logger().warn("Unknown locale: " + localeString);
+      logger.warn("Unknown locale: " + localeString);
       return;
     }
     PropertyResourceBundle bundle;
     try (BufferedReader reader = Files.newBufferedReader(path, StandardCharsets.UTF_8)) {
       bundle = new PropertyResourceBundle(reader);
     } catch (IOException e) {
-      Hermes.logger().warn("Error loading locale file: " + localeString);
+      logger.warn("Error loading locale file: " + localeString);
       return;
     }
     registry.registerAll(locale, bundle, false);

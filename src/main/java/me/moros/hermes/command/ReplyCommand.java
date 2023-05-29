@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 Moros
+ * Copyright 2021-2023 Moros
  *
  * This file is part of Hermes.
  *
@@ -28,13 +28,14 @@ import me.moros.hermes.locale.Message;
 import me.moros.hermes.registry.Registries;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 
 public final class ReplyCommand {
+  private final Hermes plugin;
   private final CommandManager manager;
 
-  ReplyCommand(@NonNull CommandManager manager) {
+  ReplyCommand(Hermes plugin, CommandManager manager) {
+    this.plugin = plugin;
     this.manager = manager;
     construct();
   }
@@ -42,10 +43,10 @@ public final class ReplyCommand {
   private void construct() {
     manager.command(manager.commandBuilder("reply", "r")
       .meta(CommandMeta.DESCRIPTION, "Quickly reply to the last player to message you")
-      .permission("hermes.command.reply")
+      .permission(CommandPermissions.REPLY)
       .argument(StringArgument.greedy("msg"))
       .senderType(Player.class)
-      .handler(c -> onReply(c.getSender(), c.getOrDefault("msg", "")))
+      .handler(c -> onReply(c.getSender(), c.get("msg")))
     );
   }
 
@@ -61,6 +62,6 @@ public final class ReplyCommand {
       Message.OFFLINE_RECIPIENT.send(sender, last.name());
       return;
     }
-    Hermes.herald().handleMessage(sender, receiver, msg);
+    plugin.herald().handleMessage(sender, receiver, msg);
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 Moros
+ * Copyright 2021-2023 Moros
  *
  * This file is part of Hermes.
  *
@@ -22,42 +22,48 @@ package me.moros.hermes.config;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
-import me.moros.hermes.Hermes;
-import org.checkerframework.checker.nullness.qual.NonNull;
+import org.slf4j.Logger;
 import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.hocon.HoconConfigurationLoader;
+import org.spongepowered.configurate.reference.ConfigurationReference;
+import org.spongepowered.configurate.reference.WatchServiceListener;
 
 public final class ConfigManager {
-  private final HoconConfigurationLoader loader;
+  private static Config config;
 
-  private CommentedConfigurationNode configRoot;
-  private Config config;
+  private final Logger logger;
+  private final WatchServiceListener listener;
+  private final ConfigurationReference<CommentedConfigurationNode> reference;
 
-  public ConfigManager(@NonNull String directory) {
-    Path path = Paths.get(directory, "hermes.conf");
-    loader = HoconConfigurationLoader.builder().path(path).build();
+  public ConfigManager(Logger logger, String directory) {
+    this.logger = logger;
+    Path path = Path.of(directory, "hermes.conf");
     try {
       Files.createDirectories(path.getParent());
-      configRoot = loader.load();
-      config = new Config(configRoot);
-      loader.save(configRoot);
+      listener = WatchServiceListener.create();
+      reference = listener.listenToConfiguration(f -> HoconConfigurationLoader.builder().path(f).build(), path);
+      reference.updates().subscribe(this::update);
+      reference.save();
     } catch (IOException e) {
-      Hermes.logger().warn(e.getMessage(), e);
+      throw new RuntimeException(e);
     }
   }
 
-  public void reload() {
+  public void close() {
     try {
-      configRoot = loader.load();
-      config = new Config(configRoot);
+      reference.close();
+      listener.close();
     } catch (IOException e) {
-      Hermes.logger().warn(e.getMessage(), e);
+      logger.warn(e.getMessage(), e);
     }
   }
 
-  public @NonNull Config config() {
+  private void update(CommentedConfigurationNode node) {
+    config = new Config(node);
+  }
+
+  public static Config config() {
     return config;
   }
 }

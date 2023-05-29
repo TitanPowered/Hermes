@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 Moros
+ * Copyright 2021-2023 Moros
  *
  * This file is part of Hermes.
  *
@@ -21,36 +21,35 @@ package me.moros.hermes;
 
 import java.util.Objects;
 
+import me.moros.hermes.config.ConfigManager;
 import me.moros.hermes.registry.Registries;
 import net.kyori.adventure.audience.Audience;
-import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.sound.Sound.Source;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 public final class Herald {
   private final Sound notification;
 
   Herald() {
-    notification = Sound.sound(Key.key("entity.player.levelup"), Source.PLAYER, 1F, 1F);
+    notification = Sound.sound(org.bukkit.Sound.ENTITY_PLAYER_LEVELUP, Source.PLAYER, 1F, 1F);
   }
 
-  public void handleMessage(@NonNull User sender, @NonNull User receiver, @NonNull String msg) {
+  // TODO msg signing, needs signed command arguments or nms to edit chat type registry
+  public void handleMessage(User sender, User receiver, String msg) {
     Objects.requireNonNull(sender);
     Objects.requireNonNull(receiver);
     Objects.requireNonNull(msg);
 
-    HermesMessage message = HermesMessage.build(sender, receiver, msg);
-
+    HermesMessage message = HermesMessage.build(ConfigManager.config(), sender, receiver, msg);
     if (!sender.uuid().equals(receiver.uuid())) {
-      sender.sendMessage(sender, message.normal());
+      sender.sendMessage(message.normal());
     }
 
     Registries.USERS.stream()
       .filter(u -> u.socialSpy() && !sender.uuid().equals(u.uuid()))
-      .collect(Audience.toAudience()).sendMessage(sender, message.spy());
+      .collect(Audience.toAudience()).sendMessage(message.spy());
 
-    receiver.sendMessage(sender, message.self());
+    receiver.sendMessage(message.self());
     receiver.playSound(notification);
 
     sender.lastRecipient(receiver);

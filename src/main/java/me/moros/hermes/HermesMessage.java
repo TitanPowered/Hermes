@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 Moros
+ * Copyright 2021-2023 Moros
  *
  * This file is part of Hermes.
  *
@@ -19,44 +19,52 @@
 
 package me.moros.hermes;
 
+import me.moros.hermes.config.Config;
 import net.kyori.adventure.text.Component;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 import static net.kyori.adventure.text.Component.text;
 
 public final class HermesMessage {
-  private final Component prepared;
-  private final Component preparedSelf;
+  private final Component normal;
+  private final Component self;
+  private final Component spy;
 
-  private HermesMessage(Component sender, Component receiver, Component content) {
-    var config = Hermes.configManager().config();
-    this.prepared = text().append(sender).append(config.msgJoiner()).append(receiver)
-      .append(config.separator()).append(content).color(HermesUtil.BASE_COLOR).build();
-    this.preparedSelf = text().append(sender).append(config.msgJoiner()).append(config.selfMsg())
-      .append(config.separator()).append(content).color(HermesUtil.BASE_COLOR).build();
+  private HermesMessage(Component normal, Component self, Component spy) {
+    this.normal = normal;
+    this.self = self;
+    this.spy = spy;
   }
 
-  public @NonNull Component normal() {
-    return Hermes.configManager().config().msgPrefix().append(prepared);
+  public Component normal() {
+    return normal;
   }
 
-  public @NonNull Component self() {
-    return Hermes.configManager().config().msgPrefix().append(preparedSelf);
+  public Component self() {
+    return self;
   }
 
-  public @NonNull Component spy() {
-    return Hermes.configManager().config().spyMsgPrefix().append(prepared);
+  public Component spy() {
+    return spy;
   }
 
-  public static @NonNull HermesMessage build(@NonNull User sender, @NonNull User receiver, @NonNull String content) {
-    Component s = Hermes.configManager().config().nameFormat(sender.player());
+  public static HermesMessage build(Config config, User sender, User receiver, String content) {
+    Component s = config.nameFormat(sender.player());
     Component r;
     if (sender.uuid().equals(receiver.uuid())) {
       r = s;
     } else {
-      r = Hermes.configManager().config().nameFormat(receiver.player());
+      r = config.nameFormat(receiver.player());
     }
     Component msg = Formatter.createAndFormat(sender.player(), HermesUtil.SERIALIZER.deserialize(content));
-    return new HermesMessage(s, r, msg);
+
+    Component msgPrefix = config.msgPrefix();
+    Component spyMsgPrefix = config.spyMsgPrefix();
+
+    Component prepared = text().append(s).append(config.msgJoiner()).append(r)
+      .append(config.separator()).append(msg).color(HermesUtil.BASE_COLOR).build();
+    Component preparedSelf = text().append(s).append(config.msgJoiner()).append(config.selfMsg())
+      .append(config.separator()).append(msg).color(HermesUtil.BASE_COLOR).build();
+
+    return new HermesMessage(msgPrefix.append(prepared), msgPrefix.append(preparedSelf), spyMsgPrefix.append(prepared));
   }
 }

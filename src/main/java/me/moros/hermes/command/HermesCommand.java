@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 Moros
+ * Copyright 2021-2023 Moros
  *
  * This file is part of Hermes.
  *
@@ -36,13 +36,15 @@ import net.kyori.adventure.text.format.NamedTextColor;
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.nullness.qual.Nullable;
 
 public final class HermesCommand {
+  private final Hermes plugin;
   private final CommandManager manager;
   private final MinecraftHelp<CommandSender> help;
 
-  HermesCommand(@NonNull CommandManager manager) {
+  HermesCommand(Hermes plugin, CommandManager manager) {
+    this.plugin = plugin;
     this.manager = manager;
     this.help = MinecraftHelp.createNative("/hermes help", manager);
     this.help.setMaxResultsPerPage(8);
@@ -53,49 +55,47 @@ public final class HermesCommand {
     var builder = manager.commandBuilder("hermes")
       .meta(CommandMeta.DESCRIPTION, "Base command for hermes");
     var spyArg = BooleanArgument
-      .<CommandSender>newBuilder("state").withLiberal(true).asOptional();
-    //noinspection ConstantConditions
+      .<CommandSender>builder("state").withLiberal(true).asOptional();
     manager.command(builder.handler(c -> help.queryCommands("", c.getSender())))
       .command(builder.literal("socialspy", "spy")
         .meta(CommandMeta.DESCRIPTION, "Toggles if you can see message commands in chat")
-        .permission("hermes.command.socialspy")
+        .permission(CommandPermissions.SPY)
         .argument(spyArg)
         .senderType(Player.class)
         .handler(c -> onSpy(c.getSender(), c.getOrDefault("state", null)))
       ).command(builder.literal("reload")
         .meta(CommandMeta.DESCRIPTION, "Reload the plugin")
-        .permission("hermes.command.reload")
+        .permission(CommandPermissions.RELOAD)
         .handler(c -> onReload(c.getSender()))
       ).command(builder.literal("version")
         .meta(CommandMeta.DESCRIPTION, "View version info about Hermes")
-        .permission("hermes.command.version")
+        .permission(CommandPermissions.VERSION)
         .handler(c -> onVersion(c.getSender()))
       ).command(builder.literal("help", "h")
         .meta(CommandMeta.DESCRIPTION, "View info about a command")
-        .permission("hermes.command.help")
+        .permission(CommandPermissions.HELP)
         .argument(StringArgument.optional("query", StringMode.GREEDY))
         .handler(c -> help.queryCommands(c.getOrDefault("query", ""), c.getSender()))
       );
   }
 
-  public static void onReload(CommandSender sender) {
-    Hermes.translationManager().reload();
-    Hermes.configManager().reload();
+  private void onReload(CommandSender sender) {
+    plugin.translationManager().reload();
     HermesUtil.refreshHeaderFooter();
     Bukkit.getOnlinePlayers().forEach(HermesUtil::refreshListName);
     Message.RELOAD.send(sender);
   }
 
-  public static void onVersion(CommandSender user) {
+  private void onVersion(CommandSender user) {
     String link = "https://github.com/PrimordialMoros/Hermes";
     Component version = Message.brand(Component.text("Version: ", NamedTextColor.DARK_AQUA))
-      .append(Component.text(Hermes.version(), NamedTextColor.GREEN))
-      .hoverEvent(HoverEvent.showText(Message.VERSION_COMMAND_HOVER.build(Hermes.author(), link)))
+      .append(Component.text(plugin.version(), NamedTextColor.GREEN))
+      .hoverEvent(HoverEvent.showText(Message.VERSION_COMMAND_HOVER.build(plugin.author(), link)))
       .clickEvent(ClickEvent.openUrl(link));
     user.sendMessage(version);
   }
 
-  public static void onSpy(CommandSender sender, Boolean value) {
+  private void onSpy(CommandSender sender, @Nullable Boolean value) {
     if (sender instanceof Player player) {
       User user = Registries.USERS.user(player);
       boolean enabled = user.socialSpy(value == null ? !user.socialSpy() : value);

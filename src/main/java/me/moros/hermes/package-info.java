@@ -17,28 +17,11 @@
  * along with Hermes. If not, see <https://www.gnu.org/licenses/>.
  */
 
+@DefaultQualifier(value = NonNull.class, locations = TypeUseLocation.PARAMETER)
+@DefaultQualifier(value = NonNull.class, locations = TypeUseLocation.RETURN)
+
 package me.moros.hermes;
 
-import java.util.UUID;
-
-import net.kyori.adventure.identity.Identity;
 import org.checkerframework.checker.nullness.qual.NonNull;
-
-public class Recipient implements Identity {
-  private final UUID uuid;
-  private final String name;
-
-  public Recipient(User user) {
-    this.uuid = user.uuid();
-    this.name = user.player().getName();
-  }
-
-  @Override
-  public @NonNull UUID uuid() {
-    return uuid;
-  }
-
-  public String name() {
-    return name;
-  }
-}
+import org.checkerframework.framework.qual.DefaultQualifier;
+import org.checkerframework.framework.qual.TypeUseLocation;

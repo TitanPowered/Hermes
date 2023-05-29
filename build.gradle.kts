@@ -1,36 +1,31 @@
 plugins {
     java
-    id("com.github.johnrengelman.shadow").version("7.1.2")
+    alias(libs.plugins.shadow)
+    alias(libs.plugins.checker)
 }
 
 group = "me.moros"
-version = "1.1.0-SNAPSHOT"
+version = "2.0.0-SNAPSHOT"
 
 java {
     toolchain {
         languageVersion.set(JavaLanguageVersion.of(17))
-    }
-    if (!isSnapshot()) {
-        withJavadocJar()
     }
     withSourcesJar()
 }
 
 repositories {
     mavenCentral()
-    maven("https://papermc.io/repo/repository/maven-public/")
+    maven("https://repo.papermc.io/repository/maven-public/")
     maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
 }
 
 dependencies {
-    implementation("cloud.commandframework","cloud-paper", "1.6.2")
-    implementation("cloud.commandframework","cloud-minecraft-extras", "1.6.2") {
-        exclude(group = "net.kyori")
-    }
-    implementation("org.spongepowered", "configurate-hocon", "4.1.2")
-    compileOnly("org.checkerframework", "checker-qual", "3.21.3")
-    compileOnly("io.papermc.paper", "paper-api", "1.18.2-R0.1-SNAPSHOT")
-    compileOnly("me.clip", "placeholderapi", "2.11.1")
+    implementation(libs.cloud.paper)
+    implementation(libs.cloud.minecraft) { isTransitive = false }
+    implementation(libs.configurate.hocon)
+    compileOnly(libs.paper)
+    compileOnly(libs.papi)
 }
 
 tasks {
@@ -49,16 +44,15 @@ tasks {
         dependsOn(shadowJar)
     }
     withType<JavaCompile> {
+        options.compilerArgs.addAll(listOf("-Xlint:unchecked", "-Xlint:deprecation"))
         options.encoding = "UTF-8"
     }
     named<Copy>("processResources") {
-        filesMatching("plugin.yml") {
+        filesMatching("*plugin.yml") {
             expand("pluginVersion" to project.version)
         }
         from("LICENSE") {
-            rename { "${project.name.toUpperCase()}_${it}"}
+            rename { "${project.name.uppercase()}_${it}"}
         }
     }
 }
-
-fun isSnapshot() = project.version.toString().endsWith("-SNAPSHOT")

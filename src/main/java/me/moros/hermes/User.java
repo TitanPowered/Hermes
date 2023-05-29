@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 Moros
+ * Copyright 2021-2023 Moros
  *
  * This file is part of Hermes.
  *
@@ -29,7 +29,6 @@ import net.kyori.adventure.identity.Identity;
 import org.bukkit.entity.Player;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
-import org.jetbrains.annotations.NotNull;
 
 public final class User implements ForwardingAudience.Single, Identity {
   private final Player player;
@@ -37,11 +36,11 @@ public final class User implements ForwardingAudience.Single, Identity {
   private Recipient lastRecipient;
   private boolean socialSpy = false;
 
-  private User(@NonNull Player player) {
+  private User(Player player) {
     this.player = player;
   }
 
-  public @NonNull Player player() {
+  public Player player() {
     return player;
   }
 
@@ -68,15 +67,14 @@ public final class User implements ForwardingAudience.Single, Identity {
   }
 
   @Override
-  public @NotNull Audience audience() {
+  public @NonNull Audience audience() {
     return player;
   }
 
-  public static Optional<User> createUser(@NonNull Player player) {
+  public static Optional<User> createUser(Player player) {
     if (Registries.USERS.contains(player.getUniqueId())) {
       return Optional.empty();
     }
-    User user = new User(player);
-    return Optional.of(user);
+    return Optional.of(new User(player));
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 Moros
+ * Copyright 2021-2023 Moros
  *
  * This file is part of Hermes.
  *
@@ -27,12 +27,13 @@ import me.moros.hermes.User;
 import me.moros.hermes.registry.Registries;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 public final class MsgCommand {
+  private final Hermes plugin;
   private final CommandManager manager;
 
-  MsgCommand(@NonNull CommandManager manager) {
+  MsgCommand(Hermes plugin, CommandManager manager) {
+    this.plugin = plugin;
     this.manager = manager;
     construct();
   }
@@ -40,19 +41,17 @@ public final class MsgCommand {
   private void construct() {
     manager.command(manager.commandBuilder("msg")
       .meta(CommandMeta.DESCRIPTION, "Sends a private message to the specified player")
-      .permission("hermes.command.msg")
+      .permission(CommandPermissions.MSG)
       .argument(PlayerArgument.of("player"))
       .argument(StringArgument.greedy("msg"))
       .senderType(Player.class)
-      .handler(c -> onMsg(c.getSender(), c.get("player"), c.getOrDefault("msg", "")))
+      .handler(c -> onMsg(c.getSender(), c.get("player"), c.get("msg")))
     );
   }
 
   private void onMsg(CommandSender commandSender, Player player, String msg) {
-    if (player != null) {
-      User sender = Registries.USERS.user((Player) commandSender);
-      User receiver = Registries.USERS.user(player);
-      Hermes.herald().handleMessage(sender, receiver, msg);
-    }
+    User sender = Registries.USERS.user((Player) commandSender);
+    User receiver = Registries.USERS.user(player);
+    plugin.herald().handleMessage(sender, receiver, msg);
   }
 }

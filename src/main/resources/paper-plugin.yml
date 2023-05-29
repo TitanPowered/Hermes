@@ -1,0 +1,12 @@
+name: Hermes
+version: ${pluginVersion}
+main: me.moros.hermes.Hermes
+author: Moros
+description: Chat formatting plugin for PaperMC.
+website: https://github.com/PrimordialMoros/Hermes
+api-version: 1.19
+dependencies:
+  - name: PlaceholderAPI
+    required: false
+load-after:
+  - name: PlaceholderAPI

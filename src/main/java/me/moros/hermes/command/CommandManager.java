@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 Moros
+ * Copyright 2021-2023 Moros
  *
  * This file is part of Hermes.
  *
@@ -32,27 +32,20 @@ import cloud.commandframework.paper.PaperCommandManager;
 import me.moros.hermes.Hermes;
 import me.moros.hermes.locale.Message;
 import org.bukkit.command.CommandSender;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 public final class CommandManager extends PaperCommandManager<CommandSender> {
-  public CommandManager(@NonNull Hermes plugin) throws Exception {
+  public CommandManager(Hermes plugin) throws Exception {
     super(plugin, CommandExecutionCoordinator.simpleCoordinator(), Function.identity(), Function.identity());
     registerExceptionHandler();
     registerAsynchronousCompletions();
-    setCommandSuggestionProcessor(this::suggestionProvider);
-    new HermesCommand(this);
-    new MsgCommand(this);
-    new ReplyCommand(this);
+    commandSuggestionProcessor(this::suggestionProvider);
+    new HermesCommand(plugin, this);
+    new MsgCommand(plugin, this);
+    new ReplyCommand(plugin, this);
   }
 
   private void registerExceptionHandler() {
-    new MinecraftExceptionHandler<CommandSender>()
-      .withInvalidSyntaxHandler()
-      .withInvalidSenderHandler()
-      .withNoPermissionHandler()
-      .withArgumentParsingHandler()
-      .withCommandExecutionHandler()
-      .withDecorator(Message::brand)
+    new MinecraftExceptionHandler<CommandSender>().withDefaultHandlers().withDecorator(Message::brand)
       .apply(this, AudienceProvider.nativeAudience());
   }
 

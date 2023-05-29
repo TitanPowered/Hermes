@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2022 Moros
+ * Copyright 2021-2023 Moros
  *
  * This file is part of Hermes.
  *
@@ -29,7 +29,6 @@ import net.kyori.adventure.text.format.Style.Merge.Strategy;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.text.format.TextDecoration.State;
 import org.bukkit.command.CommandSender;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
 public final class Formatter {
   private final Style style;
@@ -55,10 +54,9 @@ public final class Formatter {
     return buildableComponent.style(forceStyle);
   }
 
-  public static @NonNull Component createAndFormat(@NonNull CommandSender sender, @NonNull TextComponent msg) {
+  public static Component createAndFormat(CommandSender sender, TextComponent msg) {
     Objects.requireNonNull(sender);
     Objects.requireNonNull(msg);
-
     Formatter formatter = new Formatter(sender);
     return msg.toBuilder().mapChildrenDeep(c -> formatter.apply((TextComponent) c)).build();
   }
