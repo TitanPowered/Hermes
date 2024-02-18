@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 Moros
+ * Copyright 2021-2024 Moros
  *
  * This file is part of Hermes.
  *
@@ -20,19 +20,23 @@
 package me.moros.hermes.config;
 
 import me.clip.placeholderapi.PlaceholderAPI;
-import me.moros.hermes.HermesUtil;
 import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.minimessage.MiniMessage;
 import net.kyori.adventure.text.minimessage.tag.Tag;
 import net.kyori.adventure.text.minimessage.tag.resolver.ArgumentQueue;
 import net.kyori.adventure.text.minimessage.tag.resolver.Placeholder;
 import net.kyori.adventure.text.minimessage.tag.resolver.TagResolver;
+import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
 public abstract class Configurable {
+  private static final LegacyComponentSerializer LEGACY_SERIALIZER = LegacyComponentSerializer
+    .legacyAmpersand().toBuilder().hexColors().build();
+
   protected Component parse(String text) {
-    return HermesUtil.MINI_SERIALIZER.deserialize(text);
+    return MiniMessage.miniMessage().deserialize(text);
   }
 
   protected Component parsePlaceholder(String text, @Nullable Player player) {
@@ -46,7 +50,7 @@ public abstract class Configurable {
     if (player != null) {
       builder.resolver(Placeholder.component("name", player.name()));
     }
-    return HermesUtil.MINI_SERIALIZER.deserialize(text, builder.build());
+    return MiniMessage.miniMessage().deserialize(text, builder.build());
   }
 
   private Tag papiTag(@Nullable Player player, ArgumentQueue args, int space) {
@@ -55,7 +59,7 @@ public abstract class Configurable {
     if (s.isBlank()) {
       return Tag.selfClosingInserting(Component.empty());
     }
-    Component result = HermesUtil.SERIALIZER.deserialize(s);
+    Component result = LEGACY_SERIALIZER.deserialize(s);
     if (space < 0) {
       result = result.append(Component.space());
     } else if (space > 0) {

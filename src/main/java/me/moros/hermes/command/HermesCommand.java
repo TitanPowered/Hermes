@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 Moros
+ * Copyright 2021-2024 Moros
  *
  * This file is part of Hermes.
  *
@@ -19,78 +19,54 @@
 
 package me.moros.hermes.command;
 
-import cloud.commandframework.arguments.standard.BooleanArgument;
-import cloud.commandframework.arguments.standard.StringArgument;
-import cloud.commandframework.arguments.standard.StringArgument.StringMode;
-import cloud.commandframework.meta.CommandMeta;
-import cloud.commandframework.minecraft.extras.MinecraftHelp;
-import me.moros.hermes.Hermes;
-import me.moros.hermes.HermesUtil;
-import me.moros.hermes.User;
 import me.moros.hermes.locale.Message;
+import me.moros.hermes.model.User;
 import me.moros.hermes.registry.Registries;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 import net.kyori.adventure.text.event.HoverEvent;
 import net.kyori.adventure.text.format.NamedTextColor;
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.checkerframework.checker.nullness.qual.Nullable;
+import org.incendo.cloud.CommandManager;
+import org.incendo.cloud.minecraft.extras.ImmutableMinecraftHelp;
+import org.incendo.cloud.minecraft.extras.MinecraftHelp;
+import org.incendo.cloud.minecraft.extras.RichDescription;
+import org.incendo.cloud.parser.standard.BooleanParser;
+import org.incendo.cloud.parser.standard.StringParser;
 
-public final class HermesCommand {
-  private final Hermes plugin;
-  private final CommandManager manager;
-  private final MinecraftHelp<CommandSender> help;
-
-  HermesCommand(Hermes plugin, CommandManager manager) {
-    this.plugin = plugin;
-    this.manager = manager;
-    this.help = MinecraftHelp.createNative("/hermes help", manager);
-    this.help.setMaxResultsPerPage(8);
-    construct();
+record HermesCommand(Commander commander, MinecraftHelp<CommandSender> help) {
+  private HermesCommand(Commander commander) {
+    this(commander, createHelp(commander.manager()));
   }
 
   private void construct() {
-    var builder = manager.commandBuilder("hermes")
-      .meta(CommandMeta.DESCRIPTION, "Base command for hermes");
-    var spyArg = BooleanArgument
-      .<CommandSender>builder("state").withLiberal(true).asOptional();
-    manager.command(builder.handler(c -> help.queryCommands("", c.getSender())))
+    var builder = commander().manager().commandBuilder("hermes");
+    commander().manager().command(builder.handler(c -> help.queryCommands("", c.sender())))
       .command(builder.literal("socialspy", "spy")
-        .meta(CommandMeta.DESCRIPTION, "Toggles if you can see message commands in chat")
+        .optional("state", BooleanParser.booleanParser(true))
+        .commandDescription(RichDescription.of(Message.SPY_CMD_DESC.build()))
         .permission(CommandPermissions.SPY)
-        .argument(spyArg)
         .senderType(Player.class)
-        .handler(c -> onSpy(c.getSender(), c.getOrDefault("state", null)))
-      ).command(builder.literal("reload")
-        .meta(CommandMeta.DESCRIPTION, "Reload the plugin")
-        .permission(CommandPermissions.RELOAD)
-        .handler(c -> onReload(c.getSender()))
+        .handler(c -> onSpy(c.sender(), c.getOrDefault("state", null)))
       ).command(builder.literal("version")
-        .meta(CommandMeta.DESCRIPTION, "View version info about Hermes")
+        .commandDescription(RichDescription.of(Message.VERSION_CMD_DESC.build()))
         .permission(CommandPermissions.VERSION)
-        .handler(c -> onVersion(c.getSender()))
+        .handler(c -> onVersion(c.sender()))
       ).command(builder.literal("help", "h")
-        .meta(CommandMeta.DESCRIPTION, "View info about a command")
+        .optional("query", StringParser.greedyStringParser())
+        .commandDescription(RichDescription.of(Message.HELP_CMD_DESC.build()))
         .permission(CommandPermissions.HELP)
-        .argument(StringArgument.optional("query", StringMode.GREEDY))
-        .handler(c -> help.queryCommands(c.getOrDefault("query", ""), c.getSender()))
+        .handler(c -> help.queryCommands(c.getOrDefault("query", ""), c.sender()))
       );
-  }
-
-  private void onReload(CommandSender sender) {
-    plugin.translationManager().reload();
-    HermesUtil.refreshHeaderFooter();
-    Bukkit.getOnlinePlayers().forEach(HermesUtil::refreshListName);
-    Message.RELOAD.send(sender);
   }
 
   private void onVersion(CommandSender user) {
     String link = "https://github.com/PrimordialMoros/Hermes";
     Component version = Message.brand(Component.text("Version: ", NamedTextColor.DARK_AQUA))
-      .append(Component.text(plugin.version(), NamedTextColor.GREEN))
-      .hoverEvent(HoverEvent.showText(Message.VERSION_COMMAND_HOVER.build(plugin.author(), link)))
+      .append(Component.text(commander().plugin().version(), NamedTextColor.GREEN))
+      .hoverEvent(HoverEvent.showText(Message.VERSION_COMMAND_HOVER.build(commander().plugin().author(), link)))
       .clickEvent(ClickEvent.openUrl(link));
     user.sendMessage(version);
   }
@@ -105,5 +81,14 @@ public final class HermesCommand {
         Message.SPY_OFF.send(user);
       }
     }
+  }
+
+  private static MinecraftHelp<CommandSender> createHelp(CommandManager<CommandSender> manager) {
+    return ImmutableMinecraftHelp.copyOf(MinecraftHelp.createNative("/hermes help", manager))
+      .withMaxResultsPerPage(8);
+  }
+
+  public static void register(Commander commander) {
+    new HermesCommand(commander).construct();
   }
 }

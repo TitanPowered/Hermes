@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 Moros
+ * Copyright 2021-2024 Moros
  *
  * This file is part of Hermes.
  *
@@ -17,11 +17,11 @@
  * along with Hermes. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package me.moros.hermes;
-
-import java.util.Objects;
+package me.moros.hermes.util;
 
 import me.moros.hermes.config.ConfigManager;
+import me.moros.hermes.model.HermesMessage;
+import me.moros.hermes.model.User;
 import me.moros.hermes.registry.Registries;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.sound.Sound;
@@ -36,11 +36,7 @@ public final class Herald {
 
   // TODO msg signing, needs signed command arguments or nms to edit chat type registry
   public void handleMessage(User sender, User receiver, String msg) {
-    Objects.requireNonNull(sender);
-    Objects.requireNonNull(receiver);
-    Objects.requireNonNull(msg);
-
-    HermesMessage message = HermesMessage.build(ConfigManager.config(), sender, receiver, msg);
+    HermesMessage message = HermesUtil.buildMessage(ConfigManager.config(), sender, receiver, msg);
     if (!sender.uuid().equals(receiver.uuid())) {
       sender.sendMessage(message.normal());
     }
@@ -54,5 +50,9 @@ public final class Herald {
 
     sender.lastRecipient(receiver);
     receiver.lastRecipient(sender);
+  }
+
+  public static Herald create() {
+    return new Herald();
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 Moros
+ * Copyright 2021-2024 Moros
  *
  * This file is part of Hermes.
  *
@@ -19,34 +19,23 @@
 
 package me.moros.hermes.command;
 
-import cloud.commandframework.arguments.standard.StringArgument;
-import cloud.commandframework.meta.CommandMeta;
-import me.moros.hermes.Hermes;
-import me.moros.hermes.Recipient;
-import me.moros.hermes.User;
 import me.moros.hermes.locale.Message;
+import me.moros.hermes.model.Recipient;
+import me.moros.hermes.model.User;
 import me.moros.hermes.registry.Registries;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.incendo.cloud.minecraft.extras.RichDescription;
+import org.incendo.cloud.parser.standard.StringParser;
 
-
-public final class ReplyCommand {
-  private final Hermes plugin;
-  private final CommandManager manager;
-
-  ReplyCommand(Hermes plugin, CommandManager manager) {
-    this.plugin = plugin;
-    this.manager = manager;
-    construct();
-  }
-
+record ReplyCommand(Commander commander) {
   private void construct() {
-    manager.command(manager.commandBuilder("reply", "r")
-      .meta(CommandMeta.DESCRIPTION, "Quickly reply to the last player to message you")
-      .permission(CommandPermissions.REPLY)
-      .argument(StringArgument.greedy("msg"))
+    commander().manager().command(commander().manager().commandBuilder("reply", "r")
+      .required("msg", StringParser.greedyStringParser())
+      .commandDescription(RichDescription.of(Message.REPLY_CMD_DESC.build()))
       .senderType(Player.class)
-      .handler(c -> onReply(c.getSender(), c.get("msg")))
+      .permission(CommandPermissions.REPLY)
+      .handler(c -> onReply(c.sender(), c.get("msg")))
     );
   }
 
@@ -62,6 +51,10 @@ public final class ReplyCommand {
       Message.OFFLINE_RECIPIENT.send(sender, last.name());
       return;
     }
-    plugin.herald().handleMessage(sender, receiver, msg);
+    commander().plugin().herald().handleMessage(sender, receiver, msg);
+  }
+
+  public static void register(Commander commander) {
+    new ReplyCommand(commander).construct();
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 Moros
+ * Copyright 2021-2024 Moros
  *
  * This file is part of Hermes.
  *

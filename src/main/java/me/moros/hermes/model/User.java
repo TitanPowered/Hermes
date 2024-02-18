@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 Moros
+ * Copyright 2021-2024 Moros
  *
  * This file is part of Hermes.
  *
@@ -17,10 +17,12 @@
  * along with Hermes. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package me.moros.hermes;
+package me.moros.hermes.model;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import me.moros.hermes.registry.Registries;
 import net.kyori.adventure.audience.Audience;
@@ -33,8 +35,8 @@ import org.checkerframework.checker.nullness.qual.Nullable;
 public final class User implements ForwardingAudience.Single, Identity {
   private final Player player;
 
-  private Recipient lastRecipient;
-  private boolean socialSpy = false;
+  private final AtomicReference<Recipient> lastRecipient = new AtomicReference<>(null);
+  private final AtomicBoolean socialSpy = new AtomicBoolean(false);
 
   private User(Player player) {
     this.player = player;
@@ -50,20 +52,20 @@ public final class User implements ForwardingAudience.Single, Identity {
   }
 
   public @Nullable Recipient lastRecipient() {
-    return lastRecipient;
+    return lastRecipient.get();
   }
 
   public void lastRecipient(@Nullable User lastRecipient) {
-    this.lastRecipient = lastRecipient == null ? null : new Recipient(lastRecipient);
+    this.lastRecipient.set(lastRecipient == null ? null : Recipient.from(lastRecipient));
   }
 
   public boolean socialSpy() {
-    return socialSpy;
+    return socialSpy.get();
   }
 
   public boolean socialSpy(boolean socialSpy) {
-    this.socialSpy = socialSpy;
-    return this.socialSpy;
+    this.socialSpy.set(socialSpy);
+    return socialSpy;
   }
 
   @Override

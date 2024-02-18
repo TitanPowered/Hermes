@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 Moros
+ * Copyright 2021-2024 Moros
  *
  * This file is part of Hermes.
  *
@@ -17,28 +17,14 @@
  * along with Hermes. If not, see <https://www.gnu.org/licenses/>.
  */
 
-package me.moros.hermes;
+package me.moros.hermes.model;
 
 import java.util.UUID;
 
 import net.kyori.adventure.identity.Identity;
-import org.checkerframework.checker.nullness.qual.NonNull;
 
-public class Recipient implements Identity {
-  private final UUID uuid;
-  private final String name;
-
-  public Recipient(User user) {
-    this.uuid = user.uuid();
-    this.name = user.player().getName();
-  }
-
-  @Override
-  public @NonNull UUID uuid() {
-    return uuid;
-  }
-
-  public String name() {
-    return name;
+public record Recipient(UUID uuid, String name) implements Identity {
+  public static Recipient from(User user) {
+    return new Recipient(user.uuid(), user.player().getName());
   }
 }

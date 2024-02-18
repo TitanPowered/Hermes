@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 Moros
+ * Copyright 2021-2024 Moros
  *
  * This file is part of Hermes.
  *
@@ -22,48 +22,71 @@ package me.moros.hermes.config;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Collection;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicReference;
 
+import me.moros.hermes.util.Debounced;
 import org.slf4j.Logger;
 import org.spongepowered.configurate.CommentedConfigurationNode;
 import org.spongepowered.configurate.hocon.HoconConfigurationLoader;
+import org.spongepowered.configurate.reactive.Disposable;
 import org.spongepowered.configurate.reference.ConfigurationReference;
 import org.spongepowered.configurate.reference.WatchServiceListener;
 
 public final class ConfigManager {
-  private static Config config;
+  private static ConfigManager INSTANCE;
 
+  private final AtomicReference<Config> config;
   private final Logger logger;
-  private final WatchServiceListener listener;
+  private final Collection<Runnable> subscribers;
   private final ConfigurationReference<CommentedConfigurationNode> reference;
+  private final Debounced<?> buffer;
+  private final Disposable rootSubscriber;
 
-  public ConfigManager(Logger logger, String directory) {
+  public ConfigManager(Logger logger, Path directory, WatchServiceListener listener) throws IOException {
     this.logger = logger;
-    Path path = Path.of(directory, "hermes.conf");
-    try {
-      Files.createDirectories(path.getParent());
-      listener = WatchServiceListener.create();
-      reference = listener.listenToConfiguration(f -> HoconConfigurationLoader.builder().path(f).build(), path);
-      reference.updates().subscribe(this::update);
-      reference.save();
-    } catch (IOException e) {
-      throw new RuntimeException(e);
+    this.subscribers = new CopyOnWriteArrayList<>();
+    Path path = directory.resolve("hermes.conf");
+    Files.createDirectories(path.getParent());
+    reference = listener.listenToConfiguration(f -> HoconConfigurationLoader.builder().path(f).build(), path);
+    reference.errors().subscribe(e -> logger.warn(e.getValue().getMessage(), e.getValue()));
+    buffer = Debounced.create(this::onUpdate, 1, TimeUnit.SECONDS);
+    rootSubscriber = reference.updates().subscribe(e -> buffer.request());
+    config = new AtomicReference<>(new Config(reference.node()));
+    if (INSTANCE == null) {
+      INSTANCE = this;
     }
   }
 
-  public void close() {
+  private void onUpdate() {
+    this.config.set(new Config(reference.node()));
+    if (!subscribers.isEmpty()) {
+      subscribers.forEach(Runnable::run);
+    }
+  }
+
+  public void save() {
     try {
-      reference.close();
-      listener.close();
+      reference.save();
     } catch (IOException e) {
       logger.warn(e.getMessage(), e);
     }
   }
 
-  private void update(CommentedConfigurationNode node) {
-    config = new Config(node);
+  public void close() {
+    rootSubscriber.dispose();
+    subscribers.clear();
+    reference.close();
+  }
+
+  public <T extends Configurable> void subscribe(Runnable runnable) {
+    subscribers.add(runnable);
+    runnable.run();
   }
 
   public static Config config() {
-    return config;
+    return INSTANCE.config.get();
   }
 }

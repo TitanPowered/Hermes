@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 Moros
+ * Copyright 2021-2024 Moros
  *
  * This file is part of Hermes.
  *
@@ -19,39 +19,34 @@
 
 package me.moros.hermes.command;
 
-import cloud.commandframework.arguments.standard.StringArgument;
-import cloud.commandframework.bukkit.parsers.PlayerArgument;
-import cloud.commandframework.meta.CommandMeta;
-import me.moros.hermes.Hermes;
-import me.moros.hermes.User;
+import me.moros.hermes.locale.Message;
+import me.moros.hermes.model.User;
 import me.moros.hermes.registry.Registries;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
+import org.incendo.cloud.bukkit.parser.PlayerParser;
+import org.incendo.cloud.minecraft.extras.RichDescription;
+import org.incendo.cloud.parser.standard.StringParser;
 
-public final class MsgCommand {
-  private final Hermes plugin;
-  private final CommandManager manager;
-
-  MsgCommand(Hermes plugin, CommandManager manager) {
-    this.plugin = plugin;
-    this.manager = manager;
-    construct();
-  }
-
+record MsgCommand(Commander commander) {
   private void construct() {
-    manager.command(manager.commandBuilder("msg")
-      .meta(CommandMeta.DESCRIPTION, "Sends a private message to the specified player")
+    commander().manager().command(commander().manager().commandBuilder("msg")
+      .required("player", PlayerParser.playerParser())
+      .required("msg", StringParser.greedyStringParser())
+      .commandDescription(RichDescription.of(Message.MSG_CMD_DESC.build()))
       .permission(CommandPermissions.MSG)
-      .argument(PlayerArgument.of("player"))
-      .argument(StringArgument.greedy("msg"))
       .senderType(Player.class)
-      .handler(c -> onMsg(c.getSender(), c.get("player"), c.get("msg")))
+      .handler(c -> onMsg(c.sender(), c.get("player"), c.get("msg")))
     );
   }
 
   private void onMsg(CommandSender commandSender, Player player, String msg) {
     User sender = Registries.USERS.user((Player) commandSender);
     User receiver = Registries.USERS.user(player);
-    plugin.herald().handleMessage(sender, receiver, msg);
+    commander().plugin().herald().handleMessage(sender, receiver, msg);
+  }
+
+  public static void register(Commander commander) {
+    new MsgCommand(commander).construct();
   }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 Moros
+ * Copyright 2021-2024 Moros
  *
  * This file is part of Hermes.
  *
@@ -19,7 +19,9 @@
 
 package me.moros.hermes.locale;
 
-import me.moros.hermes.HermesUtil;
+import java.util.Locale;
+
+import me.moros.hermes.util.HermesUtil;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
@@ -32,14 +34,22 @@ import static net.kyori.adventure.text.format.NamedTextColor.*;
  * @see TranslationManager
  */
 public interface Message {
+  Locale DEFAULT_LOCALE = Locale.ENGLISH;
+
   Component PREFIX = text("[", DARK_GRAY)
     .append(text("Hermes", DARK_AQUA))
     .append(text("] ", DARK_GRAY));
 
+  Args0 HELP_CMD_DESC = () -> translatable("hermes.command.help.desc");
+  Args0 MSG_CMD_DESC = () -> translatable("hermes.command.msg.desc");
+  Args0 REPLY_CMD_DESC = () -> translatable("hermes.command.reply.desc");
+  Args0 SPY_CMD_DESC = () -> translatable("hermes.command.spy.desc");
+  Args0 VERSION_CMD_DESC = () -> translatable("hermes.command.version.desc");
+
   Args0 NO_RECIPIENT = () -> translatable("hermes.command.reply.no-recipient", RED);
 
   Args1<String> OFFLINE_RECIPIENT = name -> translatable("hermes.command.reply.offline-recipient", YELLOW)
-    .args(text(name, HermesUtil.BASE_COLOR));
+    .arguments(text(name, HermesUtil.BASE_COLOR));
 
   Args0 SPY_ON = () -> translatable("hermes.command.spy.on", GREEN);
 
@@ -48,7 +58,7 @@ public interface Message {
   Args0 RELOAD = () -> brand(translatable("hermes.command.reload", GREEN));
 
   Args2<String, String> VERSION_COMMAND_HOVER = (author, link) -> translatable("hermes.command.version.hover", DARK_AQUA)
-    .args(text(author, GREEN), text(link, GREEN));
+    .arguments(text(author, GREEN), text(link, GREEN));
 
   static Component brand(ComponentLike message) {
     return text().append(PREFIX).append(message).build();

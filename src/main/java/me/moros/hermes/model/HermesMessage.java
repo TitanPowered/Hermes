@@ -17,11 +17,18 @@
  * along with Hermes. If not, see <https://www.gnu.org/licenses/>.
  */
 
-@DefaultQualifier(value = NonNull.class, locations = TypeUseLocation.PARAMETER)
-@DefaultQualifier(value = NonNull.class, locations = TypeUseLocation.RETURN)
+package me.moros.hermes.model;
 
-package me.moros.hermes;
+import net.kyori.adventure.text.Component;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.framework.qual.DefaultQualifier;
-import org.checkerframework.framework.qual.TypeUseLocation;
+public interface HermesMessage {
+  Component normal();
+
+  Component self();
+
+  Component spy();
+
+  static HermesMessage build(Component normal, Component self, Component spy) {
+    return new HermesMessageImpl(normal, self, spy);
+  }
+}

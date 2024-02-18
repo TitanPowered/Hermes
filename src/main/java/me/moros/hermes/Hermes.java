@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 Moros
+ * Copyright 2021-2024 Moros
  *
  * This file is part of Hermes.
  *
@@ -19,46 +19,65 @@
 
 package me.moros.hermes;
 
-import me.moros.hermes.command.CommandManager;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Path;
+
+import io.papermc.paper.plugin.configuration.PluginMeta;
+import me.moros.hermes.command.Commander;
 import me.moros.hermes.config.ConfigManager;
 import me.moros.hermes.listener.HermesListener;
 import me.moros.hermes.locale.TranslationManager;
+import me.moros.hermes.util.Herald;
+import me.moros.hermes.util.HermesUtil;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.slf4j.Logger;
+import org.spongepowered.configurate.reference.WatchServiceListener;
 
 public class Hermes extends JavaPlugin {
-  private String author;
-  private String version;
+  private final Logger logger;
+  private final String author;
+  private final String version;
 
-  private Herald herald;
+  private final Herald herald;
 
-  private ConfigManager configManager;
-  private TranslationManager translationManager;
+  private final WatchServiceListener listener;
+  private final ConfigManager configManager;
+  private final TranslationManager translationManager;
+
+  public Hermes(Logger logger, Path dir, PluginMeta meta) {
+    this.logger = logger;
+    this.author = meta.getAuthors().get(0);
+    this.version = meta.getVersion();
+
+    this.herald = Herald.create();
+
+    try {
+      this.listener = WatchServiceListener.create();
+      this.configManager = new ConfigManager(logger, dir, listener);
+      this.translationManager = new TranslationManager(logger, dir, listener);
+    } catch (IOException e) {
+      throw new UncheckedIOException(e);
+    }
+  }
 
   @Override
   public void onEnable() {
-    author = getPluginMeta().getAuthors().get(0);
-    version = getPluginMeta().getVersion();
-
-    Logger logger = getSLF4JLogger();
-    String dir = getDataFolder().toString();
-    configManager = new ConfigManager(logger, dir);
-    translationManager = new TranslationManager(logger, dir);
-
-    herald = new Herald();
-    try {
-      new CommandManager(this);
-    } catch (Exception e) {
-      logger.error(e.getMessage(), e);
-      getServer().getPluginManager().disablePlugin(this);
-      return;
-    }
+    Commander.create(this);
+    configManager.save();
+    configManager.subscribe(this::syncRefreshHeaders);
     getServer().getPluginManager().registerEvents(new HermesListener(), this);
   }
 
   @Override
   public void onDisable() {
     configManager.close();
+    try {
+      listener.close();
+    } catch (IOException e) {
+      logger.warn(e.getMessage(), e);
+    }
   }
 
   public String author() {
@@ -73,7 +92,10 @@ public class Hermes extends JavaPlugin {
     return herald;
   }
 
-  public TranslationManager translationManager() {
-    return translationManager;
+  private void syncRefreshHeaders() {
+    getServer().getGlobalRegionScheduler().execute(this, () -> {
+      HermesUtil.refreshHeaderFooter();
+      Bukkit.getOnlinePlayers().forEach(HermesUtil::refreshListName);
+    });
   }
 }

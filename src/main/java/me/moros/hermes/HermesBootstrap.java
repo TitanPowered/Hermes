@@ -17,11 +17,21 @@
  * along with Hermes. If not, see <https://www.gnu.org/licenses/>.
  */
 
-@DefaultQualifier(value = NonNull.class, locations = TypeUseLocation.PARAMETER)
-@DefaultQualifier(value = NonNull.class, locations = TypeUseLocation.RETURN)
-
 package me.moros.hermes;
 
-import org.checkerframework.checker.nullness.qual.NonNull;
-import org.checkerframework.framework.qual.DefaultQualifier;
-import org.checkerframework.framework.qual.TypeUseLocation;
+import io.papermc.paper.plugin.bootstrap.BootstrapContext;
+import io.papermc.paper.plugin.bootstrap.PluginBootstrap;
+import io.papermc.paper.plugin.bootstrap.PluginProviderContext;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
+
+public class HermesBootstrap implements PluginBootstrap {
+  @Override
+  public void bootstrap(@NotNull BootstrapContext context) {
+  }
+
+  @Override
+  public @NotNull JavaPlugin createPlugin(@NotNull PluginProviderContext context) {
+    return new Hermes(context.getLogger(), context.getDataDirectory(), context.getConfiguration());
+  }
+}

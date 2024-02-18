@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 Moros
+ * Copyright 2021-2024 Moros
  *
  * This file is part of Hermes.
  *
@@ -21,9 +21,9 @@ package me.moros.hermes.listener;
 
 import io.papermc.paper.chat.ChatRenderer;
 import io.papermc.paper.event.player.AsyncChatEvent;
-import me.moros.hermes.HermesUtil;
-import me.moros.hermes.User;
+import me.moros.hermes.model.User;
 import me.moros.hermes.registry.Registries;
+import me.moros.hermes.util.HermesUtil;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;

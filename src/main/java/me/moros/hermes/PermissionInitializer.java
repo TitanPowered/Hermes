@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 Moros
+ * Copyright 2021-2024 Moros
  *
  * This file is part of Hermes.
  *
@@ -19,13 +19,14 @@
 
 package me.moros.hermes;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import cloud.commandframework.permission.CommandPermission;
 import me.moros.hermes.command.CommandPermissions;
+import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.util.TriState;
 import org.bukkit.Bukkit;
 import org.bukkit.permissions.Permission;
@@ -44,20 +45,25 @@ final class PermissionInitializer {
   private void initPlayerNodes() {
     var children = Stream.of(CommandPermissions.HELP, CommandPermissions.VERSION,
         CommandPermissions.MSG, CommandPermissions.REPLY)
-      .map(CommandPermission::toString).collect(Collectors.toSet());
-    children.add("hermes.format.obfuscated");
+      .map(org.incendo.cloud.permission.Permission::permissionString).collect(Collectors.toSet());
     register("hermes.player", children, TriState.TRUE);
   }
 
   private void initAdminNodes() {
-    var children = Stream.of(CommandPermissions.SPY, CommandPermissions.RELOAD)
-      .map(CommandPermission::toString).collect(Collectors.toSet());
+    var decorations = Arrays.stream(TextDecoration.values())
+      .map(d -> "hermes.format." + d.name()).collect(Collectors.toSet());
+    register("hermes.format.decorations", decorations, TriState.NOT_SET);
+
+    var children = Stream.of(CommandPermissions.SPY)
+      .map(org.incendo.cloud.permission.Permission::permissionString).collect(Collectors.toSet());
     children.add("hermes.player");
-    children.add("hermes.format.rgb");
-    children.add("hermes.format.bold");
-    children.add("hermes.format.strikethrough");
-    children.add("hermes.format.underlined");
-    children.add("hermes.format.italic");
+    children.add("hermes.format.color");
+    children.add("hermes.format.translatable");
+    children.add("hermes.format.decorations");
+    children.add("hermes.format.gradient");
+    children.add("hermes.format.rainbow");
+    children.add("hermes.format.reset");
+    children.add("hermes.format.newline");
     register("hermes.admin", children, TriState.NOT_SET);
   }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2021-2023 Moros
+ * Copyright 2021-2024 Moros
  *
  * This file is part of Hermes.
  *
@@ -19,19 +19,17 @@
 
 package me.moros.hermes.command;
 
-import cloud.commandframework.permission.CommandPermission;
-import cloud.commandframework.permission.Permission;
+import org.incendo.cloud.permission.Permission;
 
 public final class CommandPermissions {
   private CommandPermissions() {
   }
 
-  public static final CommandPermission HELP = create("help");
-  public static final CommandPermission SPY = create("socialspy");
-  public static final CommandPermission MSG = create("msg");
-  public static final CommandPermission REPLY = create("reply");
-  public static final CommandPermission VERSION = create("version");
-  public static final CommandPermission RELOAD = create("reload");
+  public static final Permission HELP = create("help");
+  public static final Permission SPY = create("socialspy");
+  public static final Permission MSG = create("msg");
+  public static final Permission REPLY = create("reply");
+  public static final Permission VERSION = create("version");
 
   private static Permission create(String node) {
     return Permission.of("hermes.command." + node);
