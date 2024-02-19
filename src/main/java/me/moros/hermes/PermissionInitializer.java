@@ -21,6 +21,8 @@ package me.moros.hermes;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -29,8 +31,8 @@ import me.moros.hermes.command.CommandPermissions;
 import net.kyori.adventure.text.format.TextDecoration;
 import net.kyori.adventure.util.TriState;
 import org.bukkit.Bukkit;
-import org.bukkit.permissions.Permission;
 import org.bukkit.permissions.PermissionDefault;
+import org.incendo.cloud.permission.Permission;
 
 final class PermissionInitializer {
   PermissionInitializer() {
@@ -43,9 +45,8 @@ final class PermissionInitializer {
   }
 
   private void initPlayerNodes() {
-    var children = Stream.of(CommandPermissions.HELP, CommandPermissions.VERSION,
-        CommandPermissions.MSG, CommandPermissions.REPLY)
-      .map(org.incendo.cloud.permission.Permission::permissionString).collect(Collectors.toSet());
+    var children = Stream.of(CommandPermissions.HELP, CommandPermissions.VERSION, CommandPermissions.MSG, CommandPermissions.REPLY)
+      .map(Permission::permissionString).collect(Collectors.toSet());
     register("hermes.player", children, TriState.TRUE);
   }
 
@@ -54,8 +55,8 @@ final class PermissionInitializer {
       .map(d -> "hermes.format." + d.name()).collect(Collectors.toSet());
     register("hermes.format.decorations", decorations, TriState.NOT_SET);
 
-    var children = Stream.of(CommandPermissions.SPY)
-      .map(org.incendo.cloud.permission.Permission::permissionString).collect(Collectors.toSet());
+    Set<String> children = new HashSet<>();
+    children.add(CommandPermissions.SPY.permissionString());
     children.add("hermes.player");
     children.add("hermes.format.color");
     children.add("hermes.format.translatable");
@@ -74,6 +75,6 @@ final class PermissionInitializer {
       case FALSE -> PermissionDefault.FALSE;
     };
     var map = children.stream().collect(Collectors.toMap(Function.identity(), v -> true));
-    Bukkit.getPluginManager().addPermission(new Permission(node, permDef, map));
+    Bukkit.getPluginManager().addPermission(new org.bukkit.permissions.Permission(node, permDef, map));
   }
 }

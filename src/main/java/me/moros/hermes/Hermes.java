@@ -60,6 +60,7 @@ public class Hermes extends JavaPlugin {
 
   @Override
   public void onEnable() {
+    new PermissionInitializer();
     Commander.create(this);
     getServer().getPluginManager().registerEvents(new HermesListener(herald), this);
   }
