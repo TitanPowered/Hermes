@@ -31,11 +31,11 @@ import org.incendo.cloud.parser.standard.StringParser;
 record ReplyCommand(Commander commander) {
   private void construct() {
     commander().manager().command(commander().manager().commandBuilder("reply", "r")
-      .required("msg", StringParser.greedyStringParser())
+      .required("message", StringParser.greedyStringParser())
       .commandDescription(RichDescription.of(Message.REPLY_CMD_DESC.build()))
       .senderType(Player.class)
       .permission(CommandPermissions.REPLY)
-      .handler(c -> onReply(c.sender(), c.get("msg")))
+      .handler(c -> onReply(c.sender(), c.get("message")))
     );
   }
 

@@ -21,7 +21,6 @@ package me.moros.hermes.locale;
 
 import java.util.Locale;
 
-import me.moros.hermes.util.HermesUtil;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.ComponentLike;
@@ -49,7 +48,7 @@ public interface Message {
   Args0 NO_RECIPIENT = () -> translatable("hermes.command.reply.no-recipient", RED);
 
   Args1<String> OFFLINE_RECIPIENT = name -> translatable("hermes.command.reply.offline-recipient", YELLOW)
-    .arguments(text(name, HermesUtil.BASE_COLOR));
+    .arguments(text(name));
 
   Args0 SPY_ON = () -> translatable("hermes.command.spy.on", GREEN);
 

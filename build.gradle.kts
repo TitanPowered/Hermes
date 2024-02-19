@@ -17,7 +17,6 @@ java {
 repositories {
     mavenCentral()
     maven("https://repo.papermc.io/repository/maven-public/")
-    maven("https://repo.extendedclip.com/content/repositories/placeholderapi/")
 }
 
 dependencies {
@@ -25,7 +24,7 @@ dependencies {
     implementation(libs.cloud.minecraft)
     implementation(libs.configurate.hocon)
     compileOnly(libs.paper)
-    compileOnly(libs.papi)
+    compileOnly(libs.mini.placeholders)
 }
 
 tasks {

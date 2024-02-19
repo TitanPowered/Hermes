@@ -2,7 +2,7 @@
 configurate = "4.1.2"
 cloud = "2.0.0-beta.2"
 paper = "1.20.4-R0.1-SNAPSHOT"
-papi = "2.11.4"
+mini-placeholders = "2.2.3"
 checker = "0.6.37"
 shadow = "8.1.1"
 
@@ -10,10 +10,10 @@ shadow = "8.1.1"
 configurate-hocon = { module = "org.spongepowered:configurate-hocon", version.ref = "configurate" }
 cloud-minecraft = { module = "org.incendo:cloud-minecraft-extras", version.ref = "cloud" }
 cloud-paper = { module = "org.incendo:cloud-paper", version.ref = "cloud" }
+mini-placeholders = { module = "io.github.miniplaceholders:miniplaceholders-api", version.ref = "mini-placeholders" }
 
 # Bukkit
 paper = { module = "io.papermc.paper:paper-api", version.ref = "paper" }
-papi = { module = "me.clip:placeholderapi", version.ref = "papi" }
 
 [plugins]
 checker = { id = "org.checkerframework", version.ref = "checker" }

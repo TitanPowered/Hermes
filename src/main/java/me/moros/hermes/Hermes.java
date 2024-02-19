@@ -28,9 +28,6 @@ import me.moros.hermes.command.Commander;
 import me.moros.hermes.config.ConfigManager;
 import me.moros.hermes.listener.HermesListener;
 import me.moros.hermes.locale.TranslationManager;
-import me.moros.hermes.util.Herald;
-import me.moros.hermes.util.HermesUtil;
-import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.slf4j.Logger;
 import org.spongepowered.configurate.reference.WatchServiceListener;
@@ -40,18 +37,16 @@ public class Hermes extends JavaPlugin {
   private final String author;
   private final String version;
 
-  private final Herald herald;
-
   private final WatchServiceListener listener;
   private final ConfigManager configManager;
   private final TranslationManager translationManager;
+
+  private final Herald herald;
 
   public Hermes(Logger logger, Path dir, PluginMeta meta) {
     this.logger = logger;
     this.author = meta.getAuthors().get(0);
     this.version = meta.getVersion();
-
-    this.herald = Herald.create();
 
     try {
       this.listener = WatchServiceListener.create();
@@ -60,14 +55,13 @@ public class Hermes extends JavaPlugin {
     } catch (IOException e) {
       throw new UncheckedIOException(e);
     }
+    this.herald = Herald.create(configManager);
   }
 
   @Override
   public void onEnable() {
     Commander.create(this);
-    configManager.save();
-    configManager.subscribe(this::syncRefreshHeaders);
-    getServer().getPluginManager().registerEvents(new HermesListener(), this);
+    getServer().getPluginManager().registerEvents(new HermesListener(herald), this);
   }
 
   @Override
@@ -90,12 +84,5 @@ public class Hermes extends JavaPlugin {
 
   public Herald herald() {
     return herald;
-  }
-
-  private void syncRefreshHeaders() {
-    getServer().getGlobalRegionScheduler().execute(this, () -> {
-      HermesUtil.refreshHeaderFooter();
-      Bukkit.getOnlinePlayers().forEach(HermesUtil::refreshListName);
-    });
   }
 }

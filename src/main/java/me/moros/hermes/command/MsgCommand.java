@@ -32,11 +32,11 @@ record MsgCommand(Commander commander) {
   private void construct() {
     commander().manager().command(commander().manager().commandBuilder("msg")
       .required("player", PlayerParser.playerParser())
-      .required("msg", StringParser.greedyStringParser())
+      .required("message", StringParser.greedyStringParser())
       .commandDescription(RichDescription.of(Message.MSG_CMD_DESC.build()))
       .permission(CommandPermissions.MSG)
       .senderType(Player.class)
-      .handler(c -> onMsg(c.sender(), c.get("player"), c.get("msg")))
+      .handler(c -> onMsg(c.sender(), c.get("player"), c.get("message")))
     );
   }
 

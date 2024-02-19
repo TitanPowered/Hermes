@@ -34,9 +34,9 @@ public final class Commander {
   private Commander(Hermes plugin) {
     this.plugin = plugin;
     this.manager = PaperCommandManager.createNative(plugin, ExecutionCoordinator.simpleCoordinator());
+    this.manager.registerBrigadier();
     MinecraftExceptionHandler.<CommandSender>createNative().defaultHandlers().decorator(Message::brand)
       .registerTo(manager);
-    manager.registerAsynchronousCompletions();
     HermesCommand.register(this);
     MsgCommand.register(this);
     ReplyCommand.register(this);

@@ -8,6 +8,6 @@ website: https://github.com/PrimordialMoros/Hermes
 api-version: '1.20'
 dependencies:
   server:
-    PlaceholderAPI:
+    MiniPlaceholders:
       load: BEFORE
-      required: false
+      required: true

@@ -21,9 +21,9 @@ package me.moros.hermes.listener;
 
 import io.papermc.paper.chat.ChatRenderer;
 import io.papermc.paper.event.player.AsyncChatEvent;
+import me.moros.hermes.Herald;
 import me.moros.hermes.model.User;
 import me.moros.hermes.registry.Registries;
-import me.moros.hermes.util.HermesUtil;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
@@ -31,25 +31,25 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-public final class HermesListener implements Listener {
+public record HermesListener(Herald herald) implements Listener {
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void onPlayerJoin(PlayerJoinEvent event) {
     Player player = event.getPlayer();
-    event.joinMessage(HermesUtil.join(player));
+    event.joinMessage(herald().joinMessage(player));
     User.createUser(player).ifPresent(Registries.USERS::register);
-    HermesUtil.refreshHeaderFooter();
-    HermesUtil.refreshListName(player);
+    herald().refreshHeaderFooter();
+    herald().refreshListName(player);
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void onPlayerQuit(PlayerQuitEvent event) {
-    event.quitMessage(HermesUtil.quit(event.getPlayer()));
+    event.quitMessage(herald().quitMessage(event.getPlayer()));
     Registries.USERS.invalidate(event.getPlayer().getUniqueId());
-    HermesUtil.refreshHeaderFooter();
+    herald().refreshHeaderFooter();
   }
 
   @EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
   public void onPlayerChat(AsyncChatEvent event) {
-    event.renderer(ChatRenderer.viewerUnaware(HermesUtil::renderChat));
+    event.renderer(ChatRenderer.viewerUnaware(herald()::renderChat));
   }
 }
