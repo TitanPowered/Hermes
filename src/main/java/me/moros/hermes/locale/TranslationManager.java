@@ -25,14 +25,16 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Iterator;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.PropertyResourceBundle;
 import java.util.ResourceBundle;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -51,18 +53,18 @@ import org.spongepowered.configurate.reference.WatchServiceListener;
  * to create {@link TranslatableComponent}.
  * @see Message
  */
-public final class TranslationManager implements Iterable<Locale> {
+public final class TranslationManager {
   private static final String PATH = "hermes.lang.messages_en";
 
   private final Logger logger;
   private final Path translationsDirectory;
-  private final AtomicReference<ForwardingTranslationRegistry> registryReference;
+  private final AtomicReference<TranslationRegistry> registryReference;
   private final Debounced<?> buffer;
 
   public TranslationManager(Logger logger, Path directory, WatchServiceListener listener) throws IOException {
     this.logger = logger;
     this.translationsDirectory = Files.createDirectories(directory.resolve("translations"));
-    var registry = createRegistry();
+    var registry = createRegistry(new HashSet<>());
     this.registryReference = new AtomicReference<>(registry);
     GlobalTranslator.translator().addSource(registry);
     this.buffer = Debounced.create(this::reload, 2, TimeUnit.SECONDS);
@@ -70,22 +72,23 @@ public final class TranslationManager implements Iterable<Locale> {
   }
 
   private void reload() {
-    var newRegistry = createRegistry();
+    Set<Locale> localeSet = new LinkedHashSet<>();
+    var newRegistry = createRegistry(localeSet);
     var old = registryReference.getAndSet(newRegistry);
     GlobalTranslator.translator().removeSource(old);
     GlobalTranslator.translator().addSource(newRegistry);
-    int amount = newRegistry.locales().size();
+    int amount = localeSet.size();
     if (amount > 0) {
-      String translations = newRegistry.locales().stream().map(Locale::getLanguage)
+      String translations = localeSet.stream().map(Locale::getLanguage)
         .collect(Collectors.joining(", ", "[", "]"));
       logger.info(String.format("Loaded %d translations: %s", amount, translations));
     }
   }
 
-  private ForwardingTranslationRegistry createRegistry() {
-    var registry = new ForwardingTranslationRegistry(Key.key("hermes", "translations"));
+  private TranslationRegistry createRegistry(Set<Locale> localeSet) {
+    var registry = TranslationRegistry.create(Key.key("hermes", "translations"));
     registry.defaultLocale(Message.DEFAULT_LOCALE);
-    loadCustom(registry);
+    loadCustom(registry, localeSet);
     loadDefaults(registry);
     return registry;
   }
@@ -95,17 +98,22 @@ public final class TranslationManager implements Iterable<Locale> {
     registry.registerAll(Message.DEFAULT_LOCALE, bundle, false);
   }
 
-  private void loadCustom(TranslationRegistry registry) {
-    Collection<Path> files;
+  private void loadCustom(TranslationRegistry registry, Set<Locale> localeSet) {
+    Collection<Path> paths;
     try (Stream<Path> stream = Files.list(translationsDirectory)) {
-      files = stream.filter(this::isValidPropertyFile).toList();
+      paths = stream.filter(this::isValidPropertyFile).toList();
     } catch (IOException e) {
-      files = List.of();
+      paths = List.of();
     }
-    files.forEach(f -> loadTranslationFile(f, registry));
+    for (Path path : paths) {
+      loadTranslationFile(path, (locale, bundle) -> {
+        registry.registerAll(locale, bundle, false);
+        localeSet.add(locale);
+      });
+    }
   }
 
-  private void loadTranslationFile(Path path, TranslationRegistry registry) {
+  private void loadTranslationFile(Path path, BiConsumer<Locale, PropertyResourceBundle> consumer) {
     String localeString = removeFileExtension(path);
     Locale locale = Translator.parseLocale(localeString);
     if (locale == null) {
@@ -119,7 +127,7 @@ public final class TranslationManager implements Iterable<Locale> {
       logger.warn("Error loading locale file: " + localeString);
       return;
     }
-    registry.registerAll(locale, bundle, false);
+    consumer.accept(locale, bundle);
   }
 
   private boolean isValidPropertyFile(Path path) {
@@ -129,10 +137,5 @@ public final class TranslationManager implements Iterable<Locale> {
   private String removeFileExtension(Path path) {
     String fileName = path.getFileName().toString();
     return fileName.substring(0, fileName.length() - ".properties".length());
-  }
-
-  @Override
-  public Iterator<Locale> iterator() {
-    return Collections.unmodifiableCollection(registryReference.get().locales()).iterator();
   }
 }

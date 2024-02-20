@@ -54,8 +54,6 @@ public interface Message {
 
   Args0 SPY_OFF = () -> translatable("hermes.command.spy.off", YELLOW);
 
-  Args0 RELOAD = () -> brand(translatable("hermes.command.reload", GREEN));
-
   Args2<String, String> VERSION_COMMAND_HOVER = (author, link) -> translatable("hermes.command.version.hover", DARK_AQUA)
     .arguments(text(author, GREEN), text(link, GREEN));
 
