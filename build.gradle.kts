@@ -32,10 +32,10 @@ tasks {
         archiveClassifier.set("")
         archiveBaseName.set(project.name)
         dependencies {
-            relocate("org.incendo", "hermes.libraries.cloud")
+            relocate("org.incendo.cloud", "hermes.libraries.cloud")
             relocate("com.typesafe", "hermes.libraries.typesafe")
-            relocate("io.leangen", "hermes.libraries.leangen")
             relocate("org.spongepowered.configurate", "hermes.libraries.configurate")
+            exclude { it.moduleName.contains("geantyref") }
         }
     }
     build {

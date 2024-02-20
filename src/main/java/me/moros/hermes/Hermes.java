@@ -43,6 +43,8 @@ public class Hermes extends JavaPlugin {
 
   private final Herald herald;
 
+  private Commander commander;
+
   public Hermes(Logger logger, Path dir, PluginMeta meta) {
     this.logger = logger;
     this.author = meta.getAuthors().get(0);
@@ -60,8 +62,8 @@ public class Hermes extends JavaPlugin {
 
   @Override
   public void onEnable() {
+    commander = Commander.create(this);
     new PermissionInitializer();
-    Commander.create(this);
     getServer().getPluginManager().registerEvents(new HermesListener(herald), this);
   }
 
