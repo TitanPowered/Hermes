@@ -1,10 +1,10 @@
 [versions]
-configurate = "4.1.2"
-cloud = "2.0.0-beta.2"
-paper = "1.20.4-R0.1-SNAPSHOT"
+configurate = "4.2.0-SNAPSHOT"
+cloud = "2.0.0-SNAPSHOT"
+paper = "1.20.6-R0.1-SNAPSHOT"
 mini-placeholders = "2.2.3"
-checker = "0.6.37"
-shadow = "8.1.1"
+checker = "0.6.39"
+shadow = "8.1.7"
 
 [libraries]
 configurate-hocon = { module = "org.spongepowered:configurate-hocon", version.ref = "configurate" }
@@ -17,4 +17,4 @@ paper = { module = "io.papermc.paper:paper-api", version.ref = "paper" }
 
 [plugins]
 checker = { id = "org.checkerframework", version.ref = "checker" }
-shadow = { id = "com.github.johnrengelman.shadow", version.ref = "shadow" }
+shadow = { id = "io.github.goooler.shadow", version.ref = "shadow" }

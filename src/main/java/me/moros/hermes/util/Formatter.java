@@ -33,6 +33,7 @@ import static java.util.Map.entry;
 public final class Formatter {
   private static final Map<String, TagResolver> DEFAULT_TAGS = Map.ofEntries(
     entry("color", StandardTags.color()),
+    entry("keybind", StandardTags.keybind()),
     entry("translatable", StandardTags.translatable()),
     entry("decorations", StandardTags.decorations()),
     entry("gradient", StandardTags.gradient()),

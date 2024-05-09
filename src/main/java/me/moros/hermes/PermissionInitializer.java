@@ -59,6 +59,7 @@ final class PermissionInitializer {
     children.add(CommandPermissions.SPY.permissionString());
     children.add("hermes.player");
     children.add("hermes.format.color");
+    children.add("hermes.format.keybind");
     children.add("hermes.format.translatable");
     children.add("hermes.format.decorations");
     children.add("hermes.format.gradient");

@@ -9,7 +9,7 @@ version = "2.0.0"
 
 java {
     toolchain {
-        languageVersion.set(JavaLanguageVersion.of(17))
+        languageVersion.set(JavaLanguageVersion.of(21))
     }
     withSourcesJar()
 }
@@ -51,7 +51,7 @@ tasks {
     }
     named<Copy>("processResources") {
         filesMatching("*plugin.yml") {
-            expand("pluginVersion" to project.version)
+            expand("version" to project.version)
         }
         from("LICENSE") {
             rename { "${project.name.uppercase()}_${it}"}

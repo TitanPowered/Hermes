@@ -1,5 +1,5 @@
 name: Hermes
-version: '${pluginVersion}'
+version: '${version}'
 main: me.moros.hermes.Hermes
 bootstrapper: me.moros.hermes.HermesBootstrap
 author: Moros
