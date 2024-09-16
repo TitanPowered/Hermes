@@ -1,15 +1,17 @@
 [versions]
 configurate = "4.2.0-SNAPSHOT"
 cloud = "2.0.0-SNAPSHOT"
-paper = "1.20.6-R0.1-SNAPSHOT"
+paper = "1.21.1-R0.1-SNAPSHOT"
 mini-placeholders = "2.2.3"
-checker = "0.6.39"
-shadow = "8.1.7"
+checker = "0.6.44"
+shadow = "8.3.0"
 
 [libraries]
 configurate-hocon = { module = "org.spongepowered:configurate-hocon", version.ref = "configurate" }
 cloud-minecraft = { module = "org.incendo:cloud-minecraft-extras", version.ref = "cloud" }
 cloud-paper = { module = "org.incendo:cloud-paper", version.ref = "cloud" }
+cloud-signed = { module = "org.incendo:cloud-minecraft-signed-arguments", version.ref = "cloud" }
+cloud-signed-paper = { module = "org.incendo:cloud-paper-signed-arguments", version.ref = "cloud" }
 mini-placeholders = { module = "io.github.miniplaceholders:miniplaceholders-api", version.ref = "mini-placeholders" }
 
 # Bukkit
@@ -17,4 +19,4 @@ paper = { module = "io.papermc.paper:paper-api", version.ref = "paper" }
 
 [plugins]
 checker = { id = "org.checkerframework", version.ref = "checker" }
-shadow = { id = "io.github.goooler.shadow", version.ref = "shadow" }
+shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }

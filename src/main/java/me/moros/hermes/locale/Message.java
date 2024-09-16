@@ -39,11 +39,9 @@ public interface Message {
     .append(text("Hermes", DARK_AQUA))
     .append(text("] ", DARK_GRAY));
 
-  Args0 HELP_CMD_DESC = () -> translatable("hermes.command.help.desc");
   Args0 MSG_CMD_DESC = () -> translatable("hermes.command.msg.desc");
   Args0 REPLY_CMD_DESC = () -> translatable("hermes.command.reply.desc");
   Args0 SPY_CMD_DESC = () -> translatable("hermes.command.spy.desc");
-  Args0 VERSION_CMD_DESC = () -> translatable("hermes.command.version.desc");
 
   Args0 NO_RECIPIENT = () -> translatable("hermes.command.reply.no-recipient", RED);
 
@@ -53,9 +51,6 @@ public interface Message {
   Args0 SPY_ON = () -> translatable("hermes.command.spy.on", GREEN);
 
   Args0 SPY_OFF = () -> translatable("hermes.command.spy.off", YELLOW);
-
-  Args2<String, String> VERSION_COMMAND_HOVER = (author, link) -> translatable("hermes.command.version.hover", DARK_AQUA)
-    .arguments(text(author, GREEN), text(link, GREEN));
 
   static Component brand(ComponentLike message) {
     return text().append(PREFIX).append(message).build();
@@ -74,14 +69,6 @@ public interface Message {
 
     default void send(Audience audience, A0 arg0) {
       audience.sendMessage(build(arg0));
-    }
-  }
-
-  interface Args2<A0, A1> {
-    Component build(A0 arg0, A1 arg1);
-
-    default void send(Audience audience, A0 arg0, A1 arg1) {
-      audience.sendMessage(build(arg0, arg1));
     }
   }
 }

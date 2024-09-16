@@ -20,6 +20,8 @@
 package me.moros.hermes.model;
 
 import net.kyori.adventure.text.Component;
+import org.incendo.cloud.minecraft.signed.SignedString;
 
-record HermesMessageImpl(Component normal, Component self, Component spy) implements HermesMessage {
+record HermesMessageImpl(SignedString signed, Component normal, Component self,
+                         Component spy) implements HermesMessage {
 }

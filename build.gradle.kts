@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "me.moros"
-version = "2.0.0"
+version = "2.1.0"
 
 java {
     toolchain {
@@ -21,6 +21,8 @@ repositories {
 
 dependencies {
     implementation(libs.cloud.paper)
+    implementation(libs.cloud.signed)
+    implementation(libs.cloud.signed.paper)
     implementation(libs.cloud.minecraft)
     implementation(libs.configurate.hocon)
     compileOnly(libs.paper)
@@ -32,7 +34,6 @@ tasks {
         archiveClassifier.set("")
         archiveBaseName.set(project.name)
         dependencies {
-            relocate("org.incendo.cloud", "hermes.libraries.cloud")
             relocate("com.typesafe", "hermes.libraries.typesafe")
             relocate("org.spongepowered.configurate", "hermes.libraries.configurate")
             exclude { it.moduleName.contains("geantyref") }
@@ -50,11 +51,11 @@ tasks {
         isReproducibleFileOrder = true
     }
     named<Copy>("processResources") {
-        filesMatching("*plugin.yml") {
+        filesMatching("paper-plugin.yml") {
             expand("version" to project.version)
         }
-        from("LICENSE") {
-            rename { "${project.name.uppercase()}_${it}"}
+        from(rootDir.resolve("LICENSE")) {
+            rename { "META-INF/${project.name.uppercase()}_${it}"}
         }
     }
 }

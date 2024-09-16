@@ -20,15 +20,18 @@
 package me.moros.hermes.model;
 
 import net.kyori.adventure.text.Component;
+import org.incendo.cloud.minecraft.signed.SignedString;
 
 public interface HermesMessage {
+  SignedString signed();
+
   Component normal();
 
   Component self();
 
   Component spy();
 
-  static HermesMessage build(Component normal, Component self, Component spy) {
-    return new HermesMessageImpl(normal, self, spy);
+  static HermesMessage build(SignedString signed, Component normal, Component self, Component spy) {
+    return new HermesMessageImpl(signed, normal, self, spy);
   }
 }

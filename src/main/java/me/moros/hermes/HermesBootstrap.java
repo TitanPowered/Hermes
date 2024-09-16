@@ -22,16 +22,20 @@ package me.moros.hermes;
 import io.papermc.paper.plugin.bootstrap.BootstrapContext;
 import io.papermc.paper.plugin.bootstrap.PluginBootstrap;
 import io.papermc.paper.plugin.bootstrap.PluginProviderContext;
+import me.moros.hermes.command.Commander;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
 public class HermesBootstrap implements PluginBootstrap {
+  private Commander commander;
+
   @Override
   public void bootstrap(@NotNull BootstrapContext context) {
+    this.commander = Commander.create(context);
   }
 
   @Override
   public @NotNull JavaPlugin createPlugin(@NotNull PluginProviderContext context) {
-    return new Hermes(context.getLogger(), context.getDataDirectory(), context.getConfiguration());
+    return new Hermes(context.getLogger(), context.getDataDirectory(), commander);
   }
 }

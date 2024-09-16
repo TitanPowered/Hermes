@@ -25,11 +25,9 @@ public final class CommandPermissions {
   private CommandPermissions() {
   }
 
-  public static final Permission HELP = create("help");
   public static final Permission SPY = create("socialspy");
   public static final Permission MSG = create("msg");
   public static final Permission REPLY = create("reply");
-  public static final Permission VERSION = create("version");
 
   private static Permission create(String node) {
     return Permission.of("hermes.command." + node);

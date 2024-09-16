@@ -45,7 +45,7 @@ final class PermissionInitializer {
   }
 
   private void initPlayerNodes() {
-    var children = Stream.of(CommandPermissions.HELP, CommandPermissions.VERSION, CommandPermissions.MSG, CommandPermissions.REPLY)
+    var children = Stream.of(CommandPermissions.MSG, CommandPermissions.REPLY)
       .map(Permission::permissionString).collect(Collectors.toSet());
     register("hermes.player", children, TriState.TRUE);
   }

@@ -28,12 +28,15 @@ import me.moros.hermes.model.User;
 import me.moros.hermes.registry.Registries;
 import me.moros.hermes.util.Formatter;
 import net.kyori.adventure.audience.Audience;
+import net.kyori.adventure.chat.ChatType;
+import net.kyori.adventure.key.Key;
 import net.kyori.adventure.sound.Sound;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.format.TextColor;
 import net.kyori.adventure.text.serializer.plain.PlainTextComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.incendo.cloud.minecraft.signed.SignedString;
 
 import static net.kyori.adventure.text.Component.text;
 
@@ -64,7 +67,7 @@ public final class Herald {
     return config().chat().quitMessage(player);
   }
 
-  private static HermesMessage buildMessage(Config config, User sender, User receiver, String content) {
+  private static HermesMessage buildMessage(Config config, User sender, User receiver, SignedString signed) {
     Component s = config.message().nameFormat(sender.player());
     Component r;
     if (sender.uuid().equals(receiver.uuid())) {
@@ -72,7 +75,7 @@ public final class Herald {
     } else {
       r = config.message().nameFormat(receiver.player());
     }
-    Component msg = Formatter.format(sender.player(), content);
+    Component msg = Formatter.format(sender.player(), signed.string());
 
     Component msgPrefix = config.message().msgPrefix();
     Component spyMsgPrefix = config.message().spyMsgPrefix();
@@ -82,22 +85,25 @@ public final class Herald {
     Component preparedSelf = text().append(s).append(config.message().msgJoiner()).append(config.message().selfNameFormat())
       .append(config.message().separator()).append(msg).color(BASE_COLOR).build();
 
-    return HermesMessage.build(msgPrefix.append(prepared), msgPrefix.append(preparedSelf), spyMsgPrefix.append(prepared));
+    return HermesMessage.build(signed, msgPrefix.append(prepared), msgPrefix.append(preparedSelf), spyMsgPrefix.append(prepared));
   }
 
-  // TODO msg signing, needs signed command arguments or nms to edit chat type registry
-  public void handleMessage(User sender, User receiver, String msg) {
+  private static final Key RAW_CHAT = Key.key("paper", "raw");
+
+  public void handleMessage(User sender, User receiver, SignedString msg) {
     var config = config();
     HermesMessage message = buildMessage(config, sender, receiver, msg);
+    ChatType type = ChatType.chatType(RAW_CHAT);
     if (!sender.uuid().equals(receiver.uuid())) {
-      sender.sendMessage(message.normal());
+      message.signed().sendMessage(sender, type, message.normal());
     }
 
-    Registries.USERS.stream()
+    Audience spyAudience = Registries.USERS.stream()
       .filter(u -> u.socialSpy() && !sender.uuid().equals(u.uuid()))
-      .collect(Audience.toAudience()).sendMessage(message.spy());
+      .collect(Audience.toAudience());
+    message.signed().sendMessage(spyAudience, type, message.spy());
 
-    receiver.sendMessage(message.self());
+    message.signed().sendMessage(receiver, type, message.self());
     Sound notificationSound = config.message().notificationSound();
     if (notificationSound != null) {
       receiver.playSound(notificationSound);
@@ -106,7 +112,6 @@ public final class Herald {
     sender.lastRecipient(receiver);
     receiver.lastRecipient(sender);
   }
-
 
   public Component renderChat(Player source, Component sourceDisplayName, Component message) {
     Component format = config().chat().format(source);

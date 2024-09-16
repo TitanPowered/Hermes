@@ -19,38 +19,45 @@
 
 package me.moros.hermes.command;
 
-import me.moros.hermes.Hermes;
+import java.util.concurrent.atomic.AtomicReference;
+
+import io.papermc.paper.plugin.bootstrap.BootstrapContext;
+import me.moros.hermes.Herald;
 import me.moros.hermes.locale.Message;
-import org.bukkit.command.CommandSender;
 import org.incendo.cloud.CommandManager;
 import org.incendo.cloud.execution.ExecutionCoordinator;
 import org.incendo.cloud.minecraft.extras.MinecraftExceptionHandler;
 import org.incendo.cloud.paper.PaperCommandManager;
+import org.incendo.cloud.paper.util.sender.PaperSimpleSenderMapper;
+import org.incendo.cloud.paper.util.sender.Source;
 
 public final class Commander {
-  private final Hermes plugin;
-  private final PaperCommandManager<CommandSender> manager;
+  private final AtomicReference<Herald> heraldRef;
+  private final PaperCommandManager<Source> manager;
 
-  private Commander(Hermes plugin) {
-    this.plugin = plugin;
-    this.manager = PaperCommandManager.createNative(plugin, ExecutionCoordinator.simpleCoordinator());
-    this.manager.registerBrigadier();
-    MinecraftExceptionHandler.<CommandSender>createNative().defaultHandlers().decorator(Message::brand)
-      .registerTo(manager);
+  private Commander(BootstrapContext context) {
+    this.heraldRef = new AtomicReference<>();
+    this.manager = PaperCommandManager.builder(PaperSimpleSenderMapper.simpleSenderMapper())
+      .executionCoordinator(ExecutionCoordinator.simpleCoordinator())
+      .buildBootstrapped(context);
+    MinecraftExceptionHandler.create(Source::source).defaultHandlers().decorator(Message::brand).registerTo(manager);
+
     HermesCommand.register(this);
-    MsgCommand.register(this);
-    ReplyCommand.register(this);
   }
 
-  public Hermes plugin() {
-    return plugin;
+  public boolean injectHerald(Herald herald) {
+    return heraldRef.compareAndSet(null, herald);
   }
 
-  public CommandManager<CommandSender> manager() {
+  public CommandManager<Source> manager() {
     return manager;
   }
 
-  public static Commander create(Hermes plugin) {
-    return new Commander(plugin);
+  public Herald herald() {
+    return heraldRef.get();
+  }
+
+  public static Commander create(BootstrapContext context) {
+    return new Commander(context);
   }
 }

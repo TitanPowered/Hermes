@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
 
-import io.papermc.paper.plugin.configuration.PluginMeta;
 import me.moros.hermes.command.Commander;
 import me.moros.hermes.config.ConfigManager;
 import me.moros.hermes.listener.HermesListener;
@@ -34,8 +33,6 @@ import org.spongepowered.configurate.reference.WatchServiceListener;
 
 public class Hermes extends JavaPlugin {
   private final Logger logger;
-  private final String author;
-  private final String version;
 
   private final WatchServiceListener listener;
   private final ConfigManager configManager;
@@ -43,12 +40,11 @@ public class Hermes extends JavaPlugin {
 
   private final Herald herald;
 
-  private Commander commander;
+  private final Commander commander;
 
-  public Hermes(Logger logger, Path dir, PluginMeta meta) {
+  public Hermes(Logger logger, Path dir, Commander commander) {
     this.logger = logger;
-    this.author = meta.getAuthors().get(0);
-    this.version = meta.getVersion();
+    this.commander = commander;
 
     try {
       this.listener = WatchServiceListener.create();
@@ -58,11 +54,11 @@ public class Hermes extends JavaPlugin {
       throw new UncheckedIOException(e);
     }
     this.herald = Herald.create(configManager);
+    this.commander.injectHerald(herald);
   }
 
   @Override
   public void onEnable() {
-    commander = Commander.create(this);
     new PermissionInitializer();
     getServer().getPluginManager().registerEvents(new HermesListener(herald), this);
   }
@@ -75,17 +71,5 @@ public class Hermes extends JavaPlugin {
     } catch (IOException e) {
       logger.warn(e.getMessage(), e);
     }
-  }
-
-  public String author() {
-    return author;
-  }
-
-  public String version() {
-    return version;
-  }
-
-  public Herald herald() {
-    return herald;
   }
 }
