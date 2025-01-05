@@ -55,7 +55,7 @@ tasks {
             expand("version" to project.version)
         }
         from(rootDir.resolve("LICENSE")) {
-            rename { "META-INF/${project.name.uppercase()}_${it}"}
+            rename { "META-INF/${it}_${project.name.uppercase()}"}
         }
     }
 }

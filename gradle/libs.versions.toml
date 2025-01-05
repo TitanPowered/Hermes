@@ -1,10 +1,10 @@
 [versions]
 configurate = "4.2.0-SNAPSHOT"
 cloud = "2.0.0-SNAPSHOT"
-paper = "1.21.1-R0.1-SNAPSHOT"
+paper = "1.21.4-R0.1-SNAPSHOT"
 mini-placeholders = "2.2.3"
-checker = "0.6.44"
-shadow = "8.3.0"
+checker = "0.6.48"
+shadow = "8.3.5"
 
 [libraries]
 configurate-hocon = { module = "org.spongepowered:configurate-hocon", version.ref = "configurate" }
