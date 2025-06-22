@@ -24,6 +24,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -42,14 +43,14 @@ import me.moros.hermes.util.Debounced;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.TranslatableComponent;
 import net.kyori.adventure.translation.GlobalTranslator;
-import net.kyori.adventure.translation.TranslationRegistry;
+import net.kyori.adventure.translation.TranslationStore;
 import net.kyori.adventure.translation.Translator;
 import net.kyori.adventure.util.UTF8ResourceBundleControl;
 import org.slf4j.Logger;
 import org.spongepowered.configurate.reference.WatchServiceListener;
 
 /**
- * TranslationManager loads localized strings and adds them to a {@link TranslationRegistry} that can be used
+ * TranslationManager loads localized strings and adds them to a {@link TranslationStore} that can be used
  * to create {@link TranslatableComponent}.
  * @see Message
  */
@@ -58,7 +59,7 @@ public final class TranslationManager {
 
   private final Logger logger;
   private final Path translationsDirectory;
-  private final AtomicReference<TranslationRegistry> registryReference;
+  private final AtomicReference<TranslationStore.StringBased<MessageFormat>> registryReference;
   private final Debounced<?> buffer;
 
   public TranslationManager(Logger logger, Path directory, WatchServiceListener listener) throws IOException {
@@ -85,20 +86,20 @@ public final class TranslationManager {
     }
   }
 
-  private TranslationRegistry createRegistry(Set<Locale> localeSet) {
-    var registry = TranslationRegistry.create(Key.key("hermes", "translations"));
+  private TranslationStore.StringBased<MessageFormat> createRegistry(Set<Locale> localeSet) {
+    var registry = TranslationStore.messageFormat(Key.key("hermes", "translations"));
     registry.defaultLocale(Message.DEFAULT_LOCALE);
     loadCustom(registry, localeSet);
     loadDefaults(registry);
     return registry;
   }
 
-  private void loadDefaults(TranslationRegistry registry) {
+  private void loadDefaults(TranslationStore.StringBased<MessageFormat> registry) {
     ResourceBundle bundle = ResourceBundle.getBundle(PATH, Message.DEFAULT_LOCALE, UTF8ResourceBundleControl.get());
     registry.registerAll(Message.DEFAULT_LOCALE, bundle, false);
   }
 
-  private void loadCustom(TranslationRegistry registry, Set<Locale> localeSet) {
+  private void loadCustom(TranslationStore.StringBased<MessageFormat> registry, Set<Locale> localeSet) {
     Collection<Path> paths;
     try (Stream<Path> stream = Files.list(translationsDirectory)) {
       paths = stream.filter(this::isValidPropertyFile).toList();
