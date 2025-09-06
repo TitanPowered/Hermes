@@ -128,12 +128,12 @@ public final class Config {
   }
 
   private static Component parse(String text) {
-    return parseMiniMessage(text, MiniPlaceholders.getGlobalPlaceholders());
+    return parseMiniMessage(text, MiniPlaceholders.globalPlaceholders());
   }
 
   private static Component parse(String text, Player player) {
     var combinedResolver = TagResolver.builder()
-      .resolver(MiniPlaceholders.getAudienceGlobalPlaceholders(player))
+      .resolver(MiniPlaceholders.audienceGlobalPlaceholders())
       .resolver(Placeholder.styling("hermes_click", ClickEvent.suggestCommand("/msg " + player.getName() + " ")))
       .build();
     return parseMiniMessage(text, combinedResolver);
