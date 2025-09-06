@@ -128,7 +128,7 @@ public final class Config {
   }
 
   private static Component parse(String text) {
-    return parseMiniMessage(text, MiniPlaceholders.globalPlaceholders());
+    return MiniMessage.miniMessage().deserialize(text, MiniPlaceholders.globalPlaceholders());
   }
 
   private static Component parse(String text, Player player) {
@@ -136,10 +136,6 @@ public final class Config {
       .resolver(MiniPlaceholders.audienceGlobalPlaceholders())
       .resolver(Placeholder.styling("hermes_click", ClickEvent.suggestCommand("/msg " + player.getName() + " ")))
       .build();
-    return parseMiniMessage(text, combinedResolver);
-  }
-
-  private static Component parseMiniMessage(String text, TagResolver resolver) {
-    return MiniMessage.miniMessage().deserialize(text, resolver);
+    return MiniMessage.miniMessage().deserialize(text, player, combinedResolver);
   }
 }
