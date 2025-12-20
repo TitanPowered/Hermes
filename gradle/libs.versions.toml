@@ -1,12 +1,13 @@
 [versions]
 configurate = "4.2.0"
-cloud = "2.0.0-beta.11"
-paper = "1.21.8-R0.1-SNAPSHOT"
-mini-placeholders = "3.0.1"
-checker = "0.6.57"
-shadow = "9.1.0"
+cloud = "2.0.0-SNAPSHOT"
+paper = "1.21.11-R0.1-SNAPSHOT"
+mini-placeholders = "3.1.0"
+jspecify = "1.0.0"
+shadow = "9.3.0"
 
 [libraries]
+jspecify = { module = "org.jspecify:jspecify", version.ref = "jspecify" }
 configurate-hocon = { module = "org.spongepowered:configurate-hocon", version.ref = "configurate" }
 cloud-minecraft = { module = "org.incendo:cloud-minecraft-extras", version.ref = "cloud" }
 cloud-paper = { module = "org.incendo:cloud-paper", version.ref = "cloud" }
@@ -18,5 +19,4 @@ mini-placeholders = { module = "io.github.miniplaceholders:miniplaceholders-api"
 paper = { module = "io.papermc.paper:paper-api", version.ref = "paper" }
 
 [plugins]
-checker = { id = "org.checkerframework", version.ref = "checker" }
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }

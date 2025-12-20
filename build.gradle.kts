@@ -1,7 +1,6 @@
 plugins {
-    java
+    id("java-library")
     alias(libs.plugins.shadow)
-    alias(libs.plugins.checker)
 }
 
 group = "me.moros"
@@ -20,6 +19,7 @@ repositories {
 }
 
 dependencies {
+    api(libs.jspecify)
     implementation(libs.cloud.paper)
     implementation(libs.cloud.signed)
     implementation(libs.cloud.signed.paper)
