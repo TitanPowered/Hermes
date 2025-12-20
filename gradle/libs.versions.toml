@@ -1,6 +1,7 @@
 [versions]
 configurate = "4.2.0"
 cloud = "2.0.0-SNAPSHOT"
+minecraft = "1.21.11"
 paper = "1.21.11-R0.1-SNAPSHOT"
 mini-placeholders = "3.1.0"
 jspecify = "1.0.0"

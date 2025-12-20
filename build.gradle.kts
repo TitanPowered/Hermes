@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "me.moros"
-version = "2.2.0"
+version = "2.3.0"
 
 java {
     toolchain {
@@ -30,32 +30,27 @@ dependencies {
 }
 
 tasks {
-    shadowJar {
-        archiveClassifier.set("")
-        archiveBaseName.set(project.name)
-        dependencies {
-            relocate("com.typesafe", "hermes.libraries.typesafe")
-            relocate("org.spongepowered.configurate", "hermes.libraries.configurate")
-            exclude { it.moduleName.contains("geantyref") }
-        }
-    }
-    build {
-        dependsOn(shadowJar)
-    }
-    withType<JavaCompile> {
-        options.compilerArgs.addAll(listOf("-Xlint:unchecked", "-Xlint:deprecation"))
-        options.encoding = "UTF-8"
-    }
     withType<AbstractArchiveTask>().configureEach {
         isPreserveFileTimestamps = false
         isReproducibleFileOrder = true
     }
-    named<Copy>("processResources") {
-        filesMatching("paper-plugin.yml") {
-            expand("version" to project.version)
+    shadowJar {
+        archiveClassifier = ""
+        archiveBaseName = project.name
+        val licenseName = "LICENSE_${rootProject.name.uppercase()}"
+        from("$rootDir/LICENSE") {
+            into("META-INF")
+            rename { licenseName }
         }
-        from(rootDir.resolve("LICENSE")) {
-            rename { "META-INF/${it}_${project.name.uppercase()}"}
+    }
+    assemble {
+        dependsOn(shadowJar)
+    }
+    named<Copy>("processResources") {
+        inputs.property("version", project.version)
+        inputs.property("mcVersion", libs.versions.minecraft.get())
+        filesMatching("paper-plugin.yml") {
+            expand(inputs.properties)
         }
     }
 }
