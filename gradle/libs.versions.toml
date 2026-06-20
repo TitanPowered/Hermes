@@ -1,19 +1,20 @@
 [versions]
 configurate = "4.2.0"
 cloud = "2.0.0-SNAPSHOT"
-minecraft = "26.1.1"
-paper = "26.1.1.build.+"
+cloud-minecraft = "2.0.0-dev-SNAPSHOT"
+minecraft = "26.2"
+paper = "26.2.build.+"
 mini-placeholders = "3.2.0"
 jspecify = "1.0.0"
-shadow = "9.4.1"
+shadow = "9.4.2"
 
 [libraries]
 jspecify = { module = "org.jspecify:jspecify", version.ref = "jspecify" }
 configurate-hocon = { module = "org.spongepowered:configurate-hocon", version.ref = "configurate" }
-cloud-minecraft = { module = "org.incendo:cloud-minecraft-extras", version.ref = "cloud" }
 cloud-paper = { module = "org.incendo:cloud-paper", version.ref = "cloud" }
-cloud-signed = { module = "org.incendo:cloud-minecraft-signed-arguments", version.ref = "cloud" }
-cloud-signed-paper = { module = "org.incendo:cloud-paper-signed-arguments", version.ref = "cloud" }
+cloud-minecraft = { module = "org.incendo:cloud-minecraft-extras", version.ref = "cloud-minecraft" }
+cloud-signed = { module = "org.incendo:cloud-minecraft-signed-arguments", version.ref = "cloud-minecraft" }
+cloud-signed-paper = { module = "org.incendo:cloud-paper-signed-arguments", version.ref = "cloud-minecraft" }
 mini-placeholders = { module = "io.github.miniplaceholders:miniplaceholders-api", version.ref = "mini-placeholders" }
 
 # Bukkit

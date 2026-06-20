@@ -27,12 +27,11 @@ import java.util.concurrent.atomic.AtomicReference;
 import me.moros.hermes.registry.Registries;
 import net.kyori.adventure.audience.Audience;
 import net.kyori.adventure.audience.ForwardingAudience;
-import net.kyori.adventure.identity.Identity;
 import org.bukkit.entity.Player;
 import org.checkerframework.checker.nullness.qual.NonNull;
 import org.checkerframework.checker.nullness.qual.Nullable;
 
-public final class User implements ForwardingAudience.Single, Identity {
+public final class User implements ForwardingAudience.Single {
   private final Player player;
 
   private final AtomicReference<Recipient> lastRecipient = new AtomicReference<>(null);
@@ -46,8 +45,7 @@ public final class User implements ForwardingAudience.Single, Identity {
     return player;
   }
 
-  @Override
-  public @NonNull UUID uuid() {
+  public UUID uuid() {
     return player.getUniqueId();
   }
 

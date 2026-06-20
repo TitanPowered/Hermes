@@ -21,9 +21,7 @@ package me.moros.hermes.model;
 
 import java.util.UUID;
 
-import net.kyori.adventure.identity.Identity;
-
-public record Recipient(UUID uuid, String name) implements Identity {
+public record Recipient(UUID uuid, String name) {
   public static Recipient from(User user) {
     return new Recipient(user.uuid(), user.player().getName());
   }

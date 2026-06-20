@@ -4,7 +4,7 @@ plugins {
 }
 
 group = "me.moros"
-version = "2.4.0"
+version = "2.4.1"
 
 java {
     toolchain {
