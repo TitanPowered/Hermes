@@ -1,12 +1,12 @@
 [versions]
 configurate = "4.2.0"
 cloud = "2.0.0-SNAPSHOT"
-cloud-minecraft = "2.0.0-dev-SNAPSHOT"
+cloud-minecraft = "2.0.0-SNAPSHOT"
 minecraft = "26.2"
 paper = "26.2.build.+"
 mini-placeholders = "3.2.0"
 jspecify = "1.0.0"
-shadow = "9.4.2"
+shadow = "9.4.3"
 
 [libraries]
 jspecify = { module = "org.jspecify:jspecify", version.ref = "jspecify" }
