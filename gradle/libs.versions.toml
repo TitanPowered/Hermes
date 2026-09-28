@@ -1,17 +1,16 @@
 [versions]
 configurate = "4.2.0"
-cloud = "2.0.0-SNAPSHOT"
-cloud-minecraft = "2.0.0-SNAPSHOT"
-minecraft = "26.2"
-paper = "26.2.build.+"
+cloud-minecraft = "2.0.1"
+minecraft = "26.3"
+paper = "26.3.build.+"
 mini-placeholders = "3.2.0"
 jspecify = "1.0.0"
-shadow = "9.4.3"
+shadow = "9.6.1"
 
 [libraries]
 jspecify = { module = "org.jspecify:jspecify", version.ref = "jspecify" }
 configurate-hocon = { module = "org.spongepowered:configurate-hocon", version.ref = "configurate" }
-cloud-paper = { module = "org.incendo:cloud-paper", version.ref = "cloud" }
+cloud-paper = { module = "org.incendo:cloud-paper", version.ref = "cloud-minecraft" }
 cloud-minecraft = { module = "org.incendo:cloud-minecraft-extras", version.ref = "cloud-minecraft" }
 cloud-signed = { module = "org.incendo:cloud-minecraft-signed-arguments", version.ref = "cloud-minecraft" }
 cloud-signed-paper = { module = "org.incendo:cloud-paper-signed-arguments", version.ref = "cloud-minecraft" }
